@@ -1,0 +1,42 @@
+#movies {
+	height: 100vh;
+}
+
+#movies .content {
+}
+
+#movies .content #movie-list {
+	overflow: scroll;
+
+	margin: 25px;
+
+	display: grid;
+	grid-template-columns: repeat(auto-fit, 160px);
+	grid-gap: 25px;
+}
+
+#movies .content #movie-list .movie {
+	width: 160px;
+	min-height: 240px;
+	cursor: pointer;
+}
+
+#movies .content #movie-list .movie .poster {
+	min-height: 240px;
+	min-width: 160px;
+	height: 240px;
+	width: 160px;
+	background: #13131B;
+}
+
+#movies .content #movie-list .movie .title {
+	overflow-wrap: break-word;
+}
+
+#movies .content #movie-list .movie:hover {
+	color: whitesmoke;
+}
+
+#movies .content #movie-list .movie:hover .poster {
+	-webkit-filter: brightness(75%);
+}

@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css?family=Muli');
+
+::-webkit-scrollbar {
+	display: none;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html, body {
+	font-family: 'Muli', sans-serif;
+}
+
+button {
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
+.hide {
+	display: none;
+}
+
+.media:hover {
+	cursor: pointer;
+}
+
+#app {
+	background-color: #15161A;
+}
+
+nav {
+	z-index: 99999; /*always on top*/
+	position: fixed;
+	background-color: #15161A;
+	color: #E0E2E6;
+	height: 7vh;
+	width: 100%;
+}
+
+nav ol {
+	list-style: none;
+	
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+nav .navigation-item {
+	display: inline-block;
+	padding-right: 60px;
+}
+
+nav .navigation-item:last-of-type {
+	padding-right: 0;
+}
+
+nav .navigation-item.selected {
+	color: #EEF4F3;
+	font-weight: bold;
+	text-decoration: underline;
+	text-underline-position: under;
+}
+
+nav .navigation-item:hover {
+	cursor: pointer;
+}
+
+nav .search {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	right: 0;
+	margin-right: 60px;
+
+	border: none;
+	background-color: #26282A;
+	outline: none;
+
+	border-radius: 5px;
+	height: 60%;
+	width: 25%;
+	color: #747577;
+
+	text-indent: 15px;
+	font-size: 18px;
+}
+
+nav .search::placeholder {
+	color: #747577;
+}
+
+#pages {
+	padding-top: 7vh;
+}
+
+.page:not(.active) {
+	display: none;
+}

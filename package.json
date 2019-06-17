@@ -1,0 +1,27 @@
+{
+  "name": "stream-box",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint ."
+  },
+  "devDependencies": {
+    "electron": "^5.0.1",
+    "electron-builder": "^20.39.0",
+    "eslint": "^5.16.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.6.2",
+    "aws4": "^1.8.0",
+    "cheerio": "^1.0.0-rc.3",
+    "crypto-js": "^3.1.9-1",
+    "got": "^9.6.0",
+    "image-cache": "^1.0.1",
+    "jsdom": "^15.0.0",
+    "json5": "^2.1.0"
+  }
+}
