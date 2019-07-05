@@ -18,9 +18,7 @@ async function scrape(traktDetails, type, season, episode) {
 			return Buffer.from(element.href.split('r=')[1], 'base64').toString();
 		});
 
-	return new Promise(resolve => {
-		embedScraper(embedList).then(resolve);
-	});
+	return embedScraper(embedList);
 }
 
 module.exports = scrape;

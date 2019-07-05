@@ -84,11 +84,7 @@ async function scrape({title}) {
 		}, resolve);
 	});
 
-	return new Promise(resolve => {
-		embedScraper(embedList).then(embedStreams => {
-			resolve(helpers.mergeArrays(streams, embedStreams));
-		});
-	});
+	return embedScraper(embedList).then(embedStreams => (helpers.mergeArrays(streams, embedStreams)));
 }
 
 module.exports = scrape;

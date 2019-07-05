@@ -41,9 +41,7 @@ async function scrape(traktDetails, type, season, episode) {
 	const embedList = JSON.parse(streamBody)
 		.filter(embed => embed.trim() !== '');
 
-	return new Promise(resolve => {
-		embedScraper(embedList).then(resolve);
-	});
+	return embedScraper(embedList);
 }
 
 module.exports = scrape;

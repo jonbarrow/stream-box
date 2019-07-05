@@ -1,7 +1,6 @@
 const got = require('got');
 const async = require('async');
 const { JSDOM } = require('jsdom');
-const helpers = require('../../util/helpers');
 const embedScraper = require('../embed');
 
 const URL_BASE = 'https://primewire.li';
@@ -54,9 +53,7 @@ async function scrape(traktDetails, type, season, episode) {
 		}, resolve);
 	});
 
-	return new Promise(resolve => {
-		embedScraper(embedList).then(resolve);
-	});
+	return embedScraper(embedList);
 }
 
 module.exports = scrape;
