@@ -5,7 +5,7 @@
 */
 
 const isPi = require('detect-rpi');
-const omxplayer = require('../../../omxplayer');
+const omxplayer = require('../omxplayer');
 const video = document.querySelector('video');
 video.addEventListener('error', event => {
 	const error = event.path[0].error;
