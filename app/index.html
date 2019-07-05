@@ -1,99 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		<title>Datapack Manager</title>
 
-		<link rel="stylesheet" href="./assets/css/font-awesome-5-pro.all.min.css"> 
-		<link rel="stylesheet" href="./assets/css/index.css">
-		<link rel="stylesheet" href="./assets/css/pages/media-details.css">
-		<link rel="stylesheet" href="./assets/css/pages/home.css">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Stream Box</title>
 
-		<script>(typeof module === 'object' ? (window.module = module, module = undefined) : null)</script>
-		<script async defer src="./assets/js/index.js"></script>
-		<script async defer src="./assets/js/ipc.js"></script>
-		<script>(window.module ? module = window.module : null)</script>
-	</head>
-	<body>
-		<div id="app">
-			<nav id="top-navigation">
-				<ol>
-					<li data-navigation="home-page" class="navigation-item">Home</li>
-					<li data-navigation="movies-page" class="navigation-item">Movies</li>
-					<li data-navigation="tvshows-page" class="navigation-item">TV Shows</li>
-					<li data-navigation="genres-page" class="navigation-item">Genres</li>
-					<li data-navigation="favorites-page" class="navigation-item">Favorites</li>
-				</ol>
 
-				<input type="text" class="search" placeholder="Search">
-			</nav>
+	<link rel="stylesheet" href="./assets/css/font-awesome-5-pro.all.min.css">
+	<link rel="stylesheet" href="./assets/css/loader.css">
+	<link rel="stylesheet" href="./assets/css/scrollbar.css">
+	<link rel="stylesheet" href="./assets/css/plyr.min.css">
+	<link rel="stylesheet" href="./assets/css/player.css">
+	<link rel="stylesheet" href="./assets/css/overlays/overlay.css">
+	<link rel="stylesheet" href="./assets/css/overlays/search.css">
+	<link rel="stylesheet" href="./assets/css/overlays/streams.css">
+	<link rel="stylesheet" href="./assets/css/index.css">
+	<link rel="stylesheet" href="./assets/css/nav.css">
+	<link rel="stylesheet" href="./assets/css/pages/media-details.css">
+	<link rel="stylesheet" href="./assets/css/pages/home.css">
+	<link rel="stylesheet" href="./assets/css/pages/movies.css">
 
-			<div id="pages">
+	<script>
+		(typeof module === 'object' ? (window.module = module, module = undefined) : null)
+	</script>
+	<script async defer src="./assets/js/plyr.min.js"></script>
+	<script async defer src="./assets/js/index.js"></script>
+	<script async defer src="./assets/js/ipc.js"></script>
+	<script async defer src="./assets/js/search.js"></script>
+	<script async defer src="./assets/js/player.js"></script>
+	<script>
+		(window.module ? module = window.module : null)
+	</script>
+</head>
 
-				<div id="media-details-page" class="page">
-					<div class="header">
-						<div class="wrapper">
-							<img class="backdrop">
-							<div class="metadata">
-								<h1 class="title"></h1>
-								<ol class="details">
-									<li class="age-rating"></li>
-									<li class="runtime"></li>
-									<li class="genres"></li>
-									<li class="release-year"></li>
-								</ol>
-								<div class="buttons"><!--add "add to favorites" button--></div>
-							</div>
-							<button class="watch-now"><i class="fal fa-5x fa-play-circle"></i></button>
-						</div>
-					</div>
-					<div class="content">
-						<div class="poster">
-							<img class="poster">
-						</div>
-						<div class="information">
-							<div class="synopsis section">
-								<h3 class="title">Synopsis</h3>
-								<div class="body"></div>
-							</div>
-							<div class="cast section">
-								<h3 class="title">Cast</h3>
-								<div class="body"></div>
-							</div>
-						</div>
-						<div class="other-media">
-							<div class="videos section">
-								<h3 class="title">Videos</h3>
-								<div class="body"></div>
-							</div>
-							<div class="related section">
-								<h3 class="title">Related</h3>
-								<div class="body"></div>
-							</div>
-						</div>
-					</div>
-				</div>
+<body class="noscroll">
+	<div id="app">
 
-				<div id="home-page" class="page active">
-					<div class="carousel"></div>
-					<div class="content">
-						<div class="section" id="home-page-popular-movies">
-							<h3 class="title">Popular Movies</h3>
-							<div class="body"></div>
-						</div>
-						<div class="section" id="home-page-popular-tvshows">
-							<h3 class="title">Popular TV Shows</h3>
-							<div class="body"></div>
-						</div>
-					</div>
-				</div>
-
+		<div id="loader">
+			<div class="lds-ellipsis">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
 			</div>
 		</div>
 
-		<template template="carousel-item">
+		<div id="overlays">
+			<div id="search-overlay" class="overlay">
+				<div class="content">
+					<h1>Search</h1>
+					<input id="search-input" type="text" class="searchbar" placeholder="Search...">
+					<div id="search-suggestions">
+						<div class="search-suggestion spinner hide">
+							<i class="fas fa-spinner fa-spin"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="streams-overlay" class="overlay">
+				<div class="content">
+					<ul id="stream-sites">
+						<li class="stream-site">
+							<img class="stream-site-logo" src="./assets/images/site_icons/gomostream.png" alt="gomostream"> GomoStream <span class="stream-count">(5)</span>
+							<ul class="streams">
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/verystream.png" alt="verystream"> VeryStream
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/gounlimited.png" alt="gounlimited"> GoUnlimited
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/viduplayer.png" alt="viduplayer"> ViduPlayer
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/viduplayer.png" alt="viduplayer"> ViduPlayer
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/viduplayer.png" alt="viduplayer"> ViduPlayer
+								</li>
+							</ul>
+						</li>
+						<li class="stream-site">
+							<img class="stream-site-logo" src="./assets/images/site_icons/watchseries.png" alt="watchseries"> WatchSeries <span class="stream-count">(13)</span>
+							<ul class="streams">
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/vshare.png" alt="vshare"> Vshare
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/vshare.png" alt="vshare"> Vshare
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/vshare.png" alt="vshare"> Vshare
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/vshare.png" alt="vshare"> Vshare
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/idtbox.png" alt="idtbox"> IDTBox
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/openload.png" alt="openload"> OpenLoad
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/openload.png" alt="openload"> OpenLoad
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/openload.png" alt="openload"> OpenLoad
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/openload.png" alt="openload"> OpenLoad
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/openload.png" alt="openload"> OpenLoad
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/openload.png" alt="openload"> OpenLoad
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/openload.png" alt="openload"> OpenLoad
+								</li>
+								<li class="stream">
+									<img class="stream-site-logo" src="./assets/images/site_icons/openload.png" alt="openload"> OpenLoad
+								</li>
+							</ul>
+						</li>
+						<li class="stream-site">
+							<img class="stream-site-logo" src="./assets/images/site_icons/streamcr.png" alt="streamcr"> StreamCR <span class="stream-count">(0)</span>
+							<ul class="streams"></ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div id="player-wrapper" class="hide">
+			<video controls crossorigin playsinline autoplay></video>
+		</div>
+
+		<nav id="top-navigation">
+			<ol>
+				<li data-navigation="home-page" class="navigation-item selected"><span>Home</span></li><!--
+			 --><li data-navigation="movies-page" class="navigation-item"><span>Movies</span></li><!--
+			 --><li data-navigation="tvshows-page" class="navigation-item"><span>Shows</span></li><!--
+			 --><li data-navigation="genres-page" class="navigation-item"><span>Genres</span></li><!--
+			 --><li data-navigation="favorites-page" class="navigation-item"><span>Favorites</span></li>
+				<hr>
+			</ol>
+
+			<button id="search-button" class="search" data-overlay="search-overlay"><i class="fal fa-search"></i><span></span></button>
+		</nav>
+		<!--
+		<nav id="top-navigation">
+			<ol>
+					<li data-navigation="home-page" class="navigation-item"><span>Home</span></li>
+					<li data-navigation="movies-page" class="navigation-item"><span>Movies</span></li>
+					<li data-navigation="tvshows-page" class="navigation-item"><span>Shows</span></li>
+					<li data-navigation="genres-page" class="navigation-item"><span>Genres</span></li>
+					<li data-navigation="favorites-page" class="navigation-item"><span>Favorites</span></li>
+					<hr>
+				</ol>
+
+			<button id="search-button" class="search" data-overlay="search-overlay"><i class="fal fa-search"></i><span></span></button>
+		</nav>
+		-->
+
+		<div id="pages">
+
+			<div id="media-details-page" class="page">
+				<div class="header">
+					<div class="wrapper">
+						<img class="backdrop">
+						<div class="metadata">
+							<h1 class="title"></h1>
+							<ol class="details">
+								<li class="age-rating"></li>
+								<li class="runtime"></li>
+								<li class="genres"></li>
+								<li class="release-year"></li>
+							</ol>
+							<div class="buttons">
+								<!--add "add to favorites" button-->
+							</div>
+						</div>
+						<button id="watch-now" class="watch-now"><i class="fal fa-5x fa-play-circle"></i></button>
+					</div>
+				</div>
+				<div class="content">
+					<div class="poster">
+						<img class="poster">
+					</div>
+					<div class="information">
+						<div class="synopsis section">
+							<h3 class="title">Synopsis</h3>
+							<div class="body"></div>
+						</div>
+						<div class="cast section">
+							<h3 class="title">Cast</h3>
+							<div class="body overlay-scrollbar"></div>
+						</div>
+					</div>
+					<div class="other-media">
+						<div class="videos section">
+							<h3 class="title">Videos</h3>
+							<div class="body overlay-scrollbar"></div>
+						</div>
+						<div class="related section">
+							<h3 class="title">Related</h3>
+							<div class="body overlay-scrollbar"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="home-page" class="page active">
+				<div class="carousel"></div>
+				<div class="content">
+					<div class="section" id="home-page-popular-movies">
+						<h3 class="title">Popular Movies</h3>
+						<div class="body overlay-scrollbar">
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+						</div>
+					</div>
+					<div class="section" id="home-page-popular-tvshows">
+						<h3 class="title">Popular TV Shows</h3>
+						<div class="body overlay-scrollbar">
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+							<div class="media fake-media"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="movies-page" class="page">
+				<div class="content">
+					<h1>Results for: <span class="query"></span></h1>
+					<div class="list"></div>
+				</div>
+			</div>
+
+			<div id="tvshows-page" class="page">
+				<div class="content overlay-scrollbar">
+					Shows page
+					<div class="media fake-media"></div>
+				</div>
+			</div>
+
+			<div id="genres-page" class="page">
+				Genres page
+			</div>
+			<div id="favorites-page" class="page">
+				Favorites page
+			</div>
+		</div>
+	</div>
+
+	<template template="search-suggestion">
+			<div class="search-suggestion">
+				<div class="body">
+					<img class="poster">
+					<div class="information">
+						<h3 class="title"></h3>
+						<p class="release-year"></p>
+					</div>
+				</div>
+			</div>
+		</template>
+
+	<template template="carousel-item">
 			<div class="carousel-item">
 				<img src="" alt="" class="backdrop">
 				<div class="metadata">
@@ -106,10 +295,11 @@
 			</div>
 		</template>
 
-		<template template="media">
+	<template template="media">
 			<div class="media">
 				<img src="" alt="" class="poster">
 			</div>
 		</template>
-	</body>
+</body>
+
 </html>

@@ -1,4 +1,4 @@
 module.exports = {
-	anime: require('./anime'),
+	'video-media': require('./video-media'),
 	hosts: require('./hosts')
 };

@@ -3,14 +3,16 @@ process.on('unhandledRejection', (reason, p) => {
 	// application specific logging, throwing an error, or other logic here
 });
 
-const {BrowserWindow, app, ipcMain} = require('electron');
+const { BrowserWindow, app, ipcMain } = require('electron');
 const fs = require('fs-extra');
 const path = require('path');
 const url = require('url');
-const {trakt, tmdb, justwatch} = require('./util');
+const childProcess = require('child_process');
+const { trakt, tmdb, justwatch } = require('./util');
 const IMDBClient = require('./util/imdb');
 const imdb = new IMDBClient();
 
+let SCRAPE_PROCESS;
 let LOCAL_RESOURCES_ROOT;
 if (isDev()) {
 	LOCAL_RESOURCES_ROOT = __dirname;
@@ -49,10 +51,13 @@ app.on('window-all-closed', () => {
 
 app.on('ready', () => {
 	ApplicationWindow = new BrowserWindow({
-		title: 'Datapack Manager',
+		title: 'Stream Box',
 		icon: `${LOCAL_RESOURCES_ROOT}/icon.ico`,
 		minHeight: '300px',
-		minWidth: '500px'
+		minWidth: '500px',
+		webPreferences: {
+			nodeIntegration: true
+		}
 	});
 
 	if (!isDev()) {
@@ -64,7 +69,7 @@ app.on('ready', () => {
 		ApplicationWindow.show();
 		ApplicationWindow.focus();
 	});
-		
+
 	ApplicationWindow.loadURL(url.format({
 		pathname: path.join(__dirname, '/app/index.html'),
 		protocol: 'file:',
@@ -87,7 +92,7 @@ ipcMain.on('ready', async event => {
 	const popularMovies = await justwatch.getPopularMovies();
 	const popularTVShows = await justwatch.getPopularTVShows();
 
-	trendingMovies = await Promise.all(trendingMovies.map(async ({movie}) => {
+	trendingMovies = await Promise.all(trendingMovies.map(async({ movie }) => {
 		movie.images = await tmdb.movieImages(movie.ids.imdb);
 		return movie;
 	}));
@@ -97,23 +102,16 @@ ipcMain.on('ready', async event => {
 	event.sender.send('update-home-popular-tvshows', popularTVShows);
 });
 
-ipcMain.on('load-media-details', async (event, {id}) => {
-	console.log(`Loading details for ${id}`);
+ipcMain.on('get-search-suggestions', async(event, { search_query }) => {
+	const suggestions = await justwatch.searchAll(search_query, 1, 5);
+	event.sender.send('search-suggestions', suggestions);
+});
+
+ipcMain.on('load-media-details', async(event, { id }) => {
 	const details = await justwatch.movieDetails(id);
 	const related = await justwatch.relatedMedia(id, details.object_type);
 
 	const imdbId = (details.external_ids.find(id => id.provider === 'imdb')).external_id;
-
-	/*
-	let cast = await trakt.movieCast(imdbId);
-	cast = await Promise.all(cast.map(async castMember => {
-		const images = await tmdb.personImages(castMember.person.ids.tmdb);
-		if (images.profiles && images.profiles.length > 0) {
-			castMember.profile = images.profiles[0];
-		}
-		return castMember;
-	}));
-	*/
 
 	const cast = (await imdb.cast(imdbId))
 		.map(castMember => {
@@ -128,11 +126,12 @@ ipcMain.on('load-media-details', async (event, {id}) => {
 
 	event.sender.send('update-media-details', {
 		id,
+		imdb_id: imdbId,
 		media_type: details.object_type,
 		title: details.title,
 		age_rating: details.age_certification || 'Not Rated',
 		runtime: details.runtime,
-		genres: details.genre_ids.map(id => JUSTWATCH_GENRES[id-1]),
+		genres: details.genre_ids.map(id => JUSTWATCH_GENRES[id - 1]),
 		release_year: details.original_release_year,
 		synopsis: details.short_description,
 		cast,
@@ -141,6 +140,42 @@ ipcMain.on('load-media-details', async (event, {id}) => {
 		images: {
 			backdrop: `https://images.justwatch.com${details.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
 			poster: `https://images.justwatch.com${details.poster.replace('{profile}', 's592')}`
+		}
+	});
+});
+
+ipcMain.on('search-media', async(event, { search_query, type }) => {
+	let results;
+
+	switch (type) {
+		case 'movie':
+			results = await justwatch.searchMovies(search_query);
+			break;
+		case 'show':
+			results = await justwatch.searchShows(search_query);
+			break;
+	}
+
+	event.sender.send('search-results', { type, search_query, results });
+});
+
+ipcMain.on('scrape-streams', async(event, { id, season, episode }) => {
+	// Using a child process here so that I can kill the entire scraping procress at once
+	// This way any lingering requests or processing can all be killed at one time with no checks
+	if (SCRAPE_PROCESS) {
+		SCRAPE_PROCESS.kill();
+	}
+
+	const _arguments = [id, season, episode].filter(val => val);
+
+	SCRAPE_PROCESS = childProcess.fork('./scrape.js', _arguments, {
+		stdio: 'ignore'
+	});
+
+	SCRAPE_PROCESS.on('message', message => {
+		event.sender.send('streams', message);
+		if (!SCRAPE_PROCESS.killed) {
+			SCRAPE_PROCESS.kill();
 		}
 	});
 });

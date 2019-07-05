@@ -1,8 +1,7 @@
 module.exports = {
 	helpers: require('./helpers'),
-	kitsu: require('./kitsu'),
 	trakt: require('./trakt'),
 	tmdb: require('./tmdb'),
-	fanarttv: require('./fanarttv'),
+	imdb: require('./imdb'),
 	justwatch: require('./justwatch')
 };

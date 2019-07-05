@@ -1,0 +1,102 @@
+nav {
+	z-index: 99999;
+	position: fixed;
+	background-color: #15161A;
+	color: #E0E2E6;
+	height: 7vh;
+	width: 100%;
+}
+
+ol {
+	width: 50%;
+	margin: 0 auto;
+	transform: translateY(50%);
+}
+
+nav .navigation-item {
+	display: inline;
+	text-align: center;
+}
+
+nav .navigation-item span {
+	display: inline-block;
+	width: 20%;
+	margin: 0;
+}
+
+nav .navigation-item span:hover {
+	cursor: pointer;
+}
+
+hr {
+	height: 3px;
+	width: 20%;
+	margin: 0;
+	margin-top: 1vh;
+	background: #EEF4F3;
+	border: none;
+	border-radius: 10px;
+	transition: .3s ease-in-out;
+}
+
+[data-navigation="home-page"].selected ~ hr {
+	margin-left: 0;
+}
+
+[data-navigation="movies-page"].selected ~ hr {
+	margin-left: 20%;
+}
+
+[data-navigation="tvshows-page"].selected ~ hr {
+	margin-left: 40%;
+}
+
+[data-navigation="genres-page"].selected ~ hr {
+	margin-left: 60%;
+}
+
+[data-navigation="favorites-page"].selected ~ hr {
+	margin-left: 80%;
+}
+
+nav .search {
+	white-space: nowrap;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	right: 0;
+	margin-right: 60px;
+
+	border: none;
+	background-color: #26282A;
+	outline: none;
+
+	width: 40px;
+	height: 40px;
+	border-radius: 20px;
+	color: #747577;
+	font-size: 18px;
+
+	transition: all 0.2s ease-in-out 0s;
+}
+
+nav .search:hover {
+	width: 120px;
+	height: 40px;
+	border-radius: 20px;
+	padding: 6px;
+	background-color: #26282A;
+}
+
+nav .search span {
+	opacity: 0;
+}
+
+nav .search:hover span {
+	opacity: 1;
+	transition: all 0.3s ease-in-out 0s;
+}
+
+nav .search:hover span:after {
+	content: " Search";
+}

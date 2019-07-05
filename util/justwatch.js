@@ -33,10 +33,11 @@ async function getPopularTVShows(page=1) {
 	return response.body;
 }
 
-async function searchMovies(query, page=1) {
+async function searchAll(query, page=1, pageSize=0) {
 	const body = JSON.stringify({
-		content_types: ['movie'],
+		content_types: ['movie', 'show'],
 		page,
+		page_size: pageSize,
 		query
 	});
 
@@ -46,6 +47,37 @@ async function searchMovies(query, page=1) {
 	
 	return response.body;
 }
+
+async function searchMovies(query, page=1, pageSize=0) {
+	const body = JSON.stringify({
+		content_types: ['movie'],
+		page,
+		page_size: pageSize,
+		query
+	});
+
+	const response = await got(`${API_SEARCH}?body=${body}`, {
+		json: true
+	});
+	
+	return response.body;
+}
+
+async function searchShows(query, page=1, pageSize=0) {
+	const body = JSON.stringify({
+		content_types: ['show'],
+		page,
+		page_size: pageSize,
+		query
+	});
+
+	const response = await got(`${API_SEARCH}?body=${body}`, {
+		json: true
+	});
+	
+	return response.body;
+}
+
 
 async function movieDetails(id) {
 	const response = await got(API_MOVIE_DETAILS.replace('{id}', id), {
@@ -82,7 +114,9 @@ async function relatedMedia(id, type) {
 module.exports = {
 	getPopularMovies,
 	getPopularTVShows,
+	searchAll,
 	searchMovies,
+	searchShows,
 	movieDetails,
 	relatedMedia
 };

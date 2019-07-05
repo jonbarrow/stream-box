@@ -1,0 +1,67 @@
+#streams-overlay .content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	
+	border-radius: 10px;
+
+	background-color: #26282A;
+
+	color: #747577;
+}
+
+#streams-overlay .content ul {
+	list-style: none;
+}
+
+#stream-sites .stream-site {
+	padding: 15px;
+}
+
+#stream-sites .stream-site:hover {
+	cursor: pointer;
+	color: white;
+}
+
+#stream-sites .stream-site:not(:last-child) {
+	border-bottom: solid rgb(31, 32, 32) 1px;
+}
+
+#stream-sites .stream-site img {
+	width: 15px;
+	height: 15px;
+	vertical-align: middle;
+}
+
+#stream-sites .stream-site .stream-count {
+	color: white;
+}
+
+#stream-sites .stream-site .streams {
+	color: #747577;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.2s ease-out;
+}
+
+#stream-sites .stream-site .streams.show {
+	height: auto;
+}
+
+#stream-sites .stream-site .streams .stream {
+	padding: 5px 15px;
+}
+
+#stream-sites .stream-site .streams .stream:first-child {
+	padding-top: 15px;
+}
+
+#stream-sites .stream-site .streams .stream:hover {
+	cursor: pointer;
+	color: white;
+}
+
+#stream-sites .stream-site .streams .stream:not(:last-child) {
+	border-bottom: solid rgb(31, 32, 32) 1px;
+}

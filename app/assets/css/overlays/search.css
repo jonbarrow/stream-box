@@ -1,0 +1,84 @@
+#search-overlay .content {
+	position: absolute;
+	top: 10%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+#search-overlay .content .searchbar {
+	width: 500px;
+	height: 50px;
+	margin-top: 10px;
+
+	border: none;
+	border-radius: 10px;
+	border: solid rgb(36, 36, 36) 1px;
+	background-color: #26282A;
+	outline: none;
+
+	color: #747577;
+
+	text-indent: 15px;
+	font-size: 26px;
+}
+
+#search-overlay .content .searchbar::-webkit-calendar-picker-indicator {
+	display: none;
+}
+
+#search-overlay .content .searchbar::placeholder {
+	color: #747577;
+}
+
+#search-overlay .content #search-suggestions {
+	position: absolute;
+	z-index: -1;
+
+	border-radius: 10px;
+	padding-top: 50px;
+	top: 50px;
+
+	width: 100%;
+
+	background: #26282A;
+}
+
+#search-overlay .content #search-suggestions .search-suggestion.spinner {
+	text-align: center;
+	padding: 15px;
+	font-size: 40px;
+}
+
+#search-overlay .content #search-suggestions .search-suggestion:not(.spinner) {
+	padding: 15px 0;
+}
+
+#search-overlay .content #search-suggestions .search-suggestion:not(.last-of-type) {
+	border-bottom: solid rgb(31, 32, 32) 1px;
+}
+
+#search-overlay .content #search-suggestions .search-suggestion.spinner,
+#search-overlay .content #search-suggestions .search-suggestion:nth-of-type(2) {
+	padding-top: 5px;
+}
+
+#search-overlay .content #search-suggestions .search-suggestion:not(.spinner):hover {
+	cursor: pointer;
+}
+
+#search-overlay .content #search-suggestions .search-suggestion:not(.spinner) .body {
+	display: flex;
+	align-items: center;
+	margin: 0 15px;
+}
+
+#search-overlay .content #search-suggestions .search-suggestion .body .poster {
+	width: 55.5px;
+	height: 79px;
+
+	border-radius: 5px;
+}
+
+#search-overlay .content #search-suggestions .search-suggestion .body .information > * {
+	margin: 5px;
+}

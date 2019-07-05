@@ -7,8 +7,8 @@ const TRAKT_TRENDING_MOVIES = `${TRAKT_URL_BASE}/movies/trending?extended=full`;
 const TRAKT_TRENDING_SHOWS = `${TRAKT_URL_BASE}/shows/trending`;
 const TRAKT_SEARCH_MOVIES = `${TRAKT_URL_BASE}/search/movie/?query`;
 const TRAKT_SEARCH_SHOWS = `${TRAKT_URL_BASE}/search/show/?query`;
-const TRAKT_DETAILS_MOVIE = `${TRAKT_URL_BASE}/movies/{}?extended=full`;
-const TRAKT_DETAILS_SHOW = `${TRAKT_URL_BASE}/shows/{}?extended=full`;
+const TRAKT_DETAILS_MOVIE = `${TRAKT_URL_BASE}/movies`;
+const TRAKT_DETAILS_SHOW = `${TRAKT_URL_BASE}/shows`;
 const TRAKT_CAST_MOVIE = `${TRAKT_URL_BASE}/movies/{}/people`;
 
 const TRAKT_API_KEYS = [
@@ -68,12 +68,22 @@ async function searchShows(query) {
 	return await traktRequest(`${TRAKT_SEARCH_SHOWS}=${query}`);
 }
 
-async function movieDetails(id) {
-	return await traktRequest(helpers.format(TRAKT_DETAILS_MOVIE, id));
+async function movieDetails(id, extended) {
+	let url = `${TRAKT_DETAILS_MOVIE}/${id}`;
+	if (extended) {
+		url += '?extended=full';
+	}
+
+	return await traktRequest(url);
 }
 
-async function showDetails(id) {
-	return await traktRequest(helpers.format(TRAKT_DETAILS_SHOW, id));
+async function showDetails(id, extended) {
+	let url = `${TRAKT_DETAILS_SHOW}/${id}`;
+	if (extended) {
+		url += '?extended=full';
+	}
+
+	return await traktRequest(url);
 }
 
 async function moviePeople(id) {
