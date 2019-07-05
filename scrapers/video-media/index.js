@@ -45,7 +45,6 @@ async function getStreams(id, season=1, episode=1) {
 
 module.exports = getStreams; // Export the function
 
-/*
 // Tesing
 (async () => {
 	console.time('Scrape Time');
@@ -55,4 +54,3 @@ module.exports = getStreams; // Export the function
 	console.log(`Total streams: ${streams.length}`);
 	//console.log(streams);
 })();
-*/
