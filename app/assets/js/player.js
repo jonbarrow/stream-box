@@ -4,6 +4,8 @@
 		Plyr
 */
 
+const isPi = require('detect-rpi');
+const omxplayer = require('../../../omxplayer');
 const video = document.querySelector('video');
 video.addEventListener('error', event => {
 	const error = event.path[0].error;
@@ -47,13 +49,18 @@ function setPlayerBackground(image) {
 }
 
 function startStream(source) {
-	if (video.src !== source) {
-		video.src = source;
-	} else {
-		player.play();
+	if (isPi()) { // Pi's get to use omxplayer until I find something better
+		omxplayer.init(source);
+		omxplayer.play();
+	} else { // Non-pi systems get Plyr
+		if (video.src !== source) {
+			video.src = source;
+		} else {
+			player.play();
+		}
+	
+		showPlayer();
 	}
-
-	showPlayer();
 }
 
 // Get around eslint no-unused-vars, and make 100% sure the variables are global
