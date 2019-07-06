@@ -9,10 +9,16 @@ function init(source) {
 
 	const _arguments = ['-o', 'hdmi', source];
 
-	OMXPLAYER_PROCESS = childProcess.spawn('omxplayer', _arguments);
+	OMXPLAYER_PROCESS = childProcess.spawn('omxplayer', _arguments, {
+		stdio: [process.stdin, process.stdout, process.stderr]
+	});
 }
 
 function writeCommand(command) {
+	if (!command.endsWith('\n')) {
+		command = `${command}\n`;
+	}
+	
 	if (OMXPLAYER_PROCESS) {
 		OMXPLAYER_PROCESS.stdin.write(command);
 	}
