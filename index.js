@@ -10,6 +10,7 @@ const url = require('url');
 const childProcess = require('child_process');
 const { trakt, tmdb, justwatch } = require('./util');
 const IMDBClient = require('./util/imdb');
+const omxplayer = require('./omxplayer');
 const imdb = new IMDBClient();
 
 let SCRAPE_PROCESS;
@@ -178,6 +179,11 @@ ipcMain.on('scrape-streams', async(event, { id, season, episode }) => {
 			SCRAPE_PROCESS.kill();
 		}
 	});
+});
+
+ipcMain.on('start-omxplayer', (event, source) => {
+	omxplayer.init(source);
+	omxplayer.play();
 });
 
 async function initialize() {

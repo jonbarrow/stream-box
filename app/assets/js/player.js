@@ -2,10 +2,10 @@
 /*
 	global
 		Plyr
+		startOMXPlayer
 */
 
 const isPi = require('detect-rpi');
-const omxplayer = require('../omxplayer');
 const video = document.querySelector('video');
 video.addEventListener('error', event => {
 	const error = event.path[0].error;
@@ -50,8 +50,7 @@ function setPlayerBackground(image) {
 
 function startStream(source) {
 	if (isPi()) { // Pi's get to use omxplayer until I find something better
-		omxplayer.init(source);
-		omxplayer.play();
+		startOMXPlayer(source);
 	} else { // Non-pi systems get Plyr
 		if (video.src !== source) {
 			video.src = source;
