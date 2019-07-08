@@ -19,4 +19,6 @@ module.exports = {
 	UnlimitedPeer: require('./unlimitedpeer'),
 	Megaxfer: require('./megaxfer'),
 	FEmbed: require('./fembed'),
+	VidLox: require('./vidlox'),
+	OnlyStream: require('./onlystream'),
 };

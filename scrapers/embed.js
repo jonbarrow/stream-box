@@ -58,28 +58,37 @@ async function scrape(embedList) {
 						break;
 					
 					case 'streamango.com':
-						//  Streamango seems down?
-						/*
 						hostScrapers.StreaMango.scrape(embed)
 							.then(streamango => {
 								if (streamango) {
-									async.each(streamango, (stream, cb) => {
-										got.head(stream.source.replace('//', '')).then(response => {
-											streams.push({
-												file_host: 'StreaMango',
-												file: response.url,
-												quality: stream.quality,
-											});
-
-											cb();
+									for (const stream of streamango) {
+										streams.push({
+											file_host: 'StreaMango',
+											file: stream.file,
+											quality: stream.quality
 										});
-									}, callback);
-								} else {
-									callback();
+									}
 								}
+
+								callback();
 							});
-						*/
-						callback();
+						break;
+
+					case 'rapidvideo.com':
+						hostScrapers.RapidVideo.scrape(embed)
+							.then(rapidvideo => {
+								if (rapidvideo) {
+									for (const stream of rapidvideo) {
+										streams.push({
+											file_host: 'RapidVideo',
+											file: stream.file,
+											quality: stream.quality
+										});
+									}
+								}
+
+								callback();
+							});
 						break;
 					case 'verystream.com':
 					case 'putlockertv.biz':
@@ -245,6 +254,37 @@ async function scrape(embedList) {
 								callback();
 							});
 						break;
+					case 'vidlox.me':
+						hostScrapers.VidLox.scrape(embed)
+							.then(vidlox => {
+								if (vidlox) {
+									for (const stream of vidlox) {
+										streams.push({
+											file_host: 'VidLox',
+											file: stream
+										});
+									}
+								}
+
+								callback();
+							});
+						break;
+					case 'onlystream.tv':
+						hostScrapers.OnlyStream.scrape(embed)
+							.then(onlystream => {
+								if (onlystream) {
+									for (const stream of onlystream) {
+										streams.push({
+											file_host: 'OnlyStream',
+											file: stream.file,
+											quality: stream.label
+										});
+									}
+								}
+
+								callback();
+							});
+						break;
 					case 'vev.io': // captcha
 					case 'powvideo.net': // captcha
 					case 'gorillavid.in': // dead
@@ -262,6 +302,7 @@ async function scrape(embedList) {
 					case 'vidto.me': // cant find working embed to test
 					case 'vidlox.tv': // cant find working embed to test
 					case 'waaw.tv': // captcha
+					case 'hqq.tv': // broken site
 						callback();
 						break;
 					default:
