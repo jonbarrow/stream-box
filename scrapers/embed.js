@@ -186,6 +186,7 @@ async function scrape(embedList) {
 							});
 						break;
 					case 'vshare.eu':
+						/*
 						hostScrapers.VShare.scrape(embed)
 							.then(vshare => {
 								if (vshare) {
@@ -197,6 +198,8 @@ async function scrape(embedList) {
 
 								callback();
 							});
+						*/
+						callback();
 						break;
 					case 'unlimitedpeer.ru':
 						hostScrapers.UnlimitedPeer.scrape(embed)
@@ -267,7 +270,6 @@ async function scrape(embedList) {
 						break;
 				}	
 			} catch (error) {
-				console.log(embed);
 				callback();
 			}
 		}, () => {
