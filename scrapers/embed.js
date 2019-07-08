@@ -82,6 +82,7 @@ async function scrape(embedList) {
 						callback();
 						break;
 					case 'verystream.com':
+					case 'putlockertv.biz':
 						hostScrapers.VeryStream.scrape(embed)
 							.then(verystream => {
 								if (verystream) {
@@ -257,6 +258,7 @@ async function scrape(embedList) {
 					case 'vidzi.tv': // cant find working embed to test
 					case 'vidto.me': // cant find working embed to test
 					case 'vidlox.tv': // cant find working embed to test
+					case 'waaw.tv': // captcha
 						callback();
 						break;
 					default:
@@ -265,6 +267,7 @@ async function scrape(embedList) {
 						break;
 				}	
 			} catch (error) {
+				console.log(embed);
 				callback();
 			}
 		}, () => {

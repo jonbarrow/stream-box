@@ -7,4 +7,5 @@ module.exports = {
 	f2movies: require('./f2movies.to'),
 	primewire: require('./primewire.li'),
 	onetwofourmovies: require('./124movies.to'),
+	putlockertv: require('./putlockertv.biz'),
 };
