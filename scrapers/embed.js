@@ -225,6 +225,22 @@ async function scrape(embedList) {
 								callback();
 							});
 						break;
+					case 'fembed.com':
+						hostScrapers.FEmbed.scrape(embed)
+							.then(fembed => {
+								if (fembed) {
+									for (const stream of fembed) {
+										streams.push({
+											file_host: 'FEmbed',
+											file: stream.file,
+											quality: stream.quality,
+										});
+									}
+								}
+
+								callback();
+							});
+						break;
 					case 'vev.io': // captcha
 					case 'powvideo.net': // captcha
 					case 'gorillavid.in': // dead

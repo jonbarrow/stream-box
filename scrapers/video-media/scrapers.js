@@ -6,4 +6,5 @@ module.exports = {
 	consistentstream: require('./consistent.stream'),
 	f2movies: require('./f2movies.to'),
 	primewire: require('./primewire.li'),
+	onetwofourmovies: require('./124movies.to'),
 };

@@ -18,4 +18,5 @@ module.exports = {
 	VShare: require('./vshare'),
 	UnlimitedPeer: require('./unlimitedpeer'),
 	Megaxfer: require('./megaxfer'),
+	FEmbed: require('./fembed'),
 };
