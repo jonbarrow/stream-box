@@ -134,10 +134,6 @@ function scrapeStreams(id, season, episode) {
 	});
 }
 
-function startOMXPlayer(source) {
-	ipcRenderer.send('start-omxplayer', source);
-}
-
 (() => {
 	ipcRenderer.send('initialize');
 })();
@@ -353,5 +349,4 @@ ipcRenderer.on('streams', (event, streams) => {
 !function() {
 	this.getSearchSuggestions = getSearchSuggestions;
 	this.searchMedia = searchMedia;
-	this.startOMXPlayer = startOMXPlayer;
 }();
