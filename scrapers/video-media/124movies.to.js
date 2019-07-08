@@ -75,6 +75,7 @@ async function scrape({title}) {
 
 module.exports = scrape;
 
+/*
 (async () => {
 	console.time('scraping');
 	const streams = await scrape({
@@ -91,3 +92,4 @@ module.exports = scrape;
 
 	console.log(streams);
 })();
+*/
