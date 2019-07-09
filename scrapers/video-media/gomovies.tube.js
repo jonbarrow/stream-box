@@ -1,3 +1,4 @@
+const  { EventEmitter } = require('events');
 const got = require('got');
 const async = require('async');
 const { JSDOM } = require('jsdom');
@@ -13,57 +14,46 @@ const VALID_SERVERS = [
 	'server_4',
 ];
 
-async function scrape(traktDetails, type) {
-	if (type === 'movie') {
-		return scrapeMovie(traktDetails);
-	} else {
-		// Add show support
-		return null;
+class GoMovies extends EventEmitter {
+	constructor() {
+		super();
 	}
-}
 
-async function scrapeMovie({title}) {
-	let response = await got(`${AJAX_SEARCH}/captain`, {
-		headers: {
-			'X-Requested-With': 'XMLHttpRequest' // site 404's without this header
+	async scrape({title}, type) {
+		if (type !== 'movie') { // This site supports TV shows! Need to add TV show support
+			return this.emit('finished');
 		}
-	});
-	let body = response.body;
-	const dom = new JSDOM(body);
 
-	const categories = [...dom.window.document.querySelectorAll('.searchItem_categories')]
-		.map(category => ({
-			type: category.querySelector('span').innerHTML.toLowerCase(),
-			items: [...category.querySelectorAll('.searchItem_film')]
-				.map(film => ({
-					name: film.querySelector('.filmName').innerHTML.trim().replace(/\n/g, ''),
-					href: film.href
-				}))
-		}));
-
-	const movies = categories.find(({type}) => type === 'movies');
-
-	if (!movies) {
-		return null;
-	}
-
-	const movie = movies.items.find(({name}) => name === title);
+		const response = await got(`${AJAX_SEARCH}/${title}`, {
+			headers: {
+				'X-Requested-With': 'XMLHttpRequest' // site 404's without this header
+			}
+		});
+		const body = response.body;
+		const dom = new JSDOM(body);
 	
-	if (!movie) {
-		return null;
-	}
-
-	response = await got(`${URL_BASE}${movie.href}?server=server_4`, {
-		headers: {
-			'X-Requested-With': 'XMLHttpRequest' // This gives us JSON lol
-		},
-		json: true
-	});
-	body = response.body;
-
-	const streams = [];
-
-	await new Promise(resolve => {
+		const categories = [...dom.window.document.querySelectorAll('.searchItem_categories')]
+			.map(category => ({
+				type: category.querySelector('span').innerHTML.toLowerCase(),
+				items: [...category.querySelectorAll('.searchItem_film')]
+					.map(film => ({
+						name: film.querySelector('.filmName').innerHTML.trim().replace(/\n/g, ''),
+						href: film.href
+					}))
+			}));
+	
+		const movies = categories.find(({type}) => type === 'movies');
+	
+		if (!movies) {
+			return this.emit('finished');
+		}
+	
+		const movie = movies.items.find(({name}) => name === title);
+		
+		if (!movie) {
+			return this.emit('finished');
+		}
+	
 		async.each(VALID_SERVERS, (server, callback) => {
 			got(`${URL_BASE}${movie.href}?server=${server}`, {
 				headers: {
@@ -75,7 +65,7 @@ async function scrapeMovie({title}) {
 					hostScrapers.OpenLoad.scrape(body.link)
 						.then(openload => {
 							if (openload) {
-								streams.push({
+								this.emit('stream', {
 									file_host: 'OpenLoad',
 									file: openload
 								});
@@ -85,7 +75,7 @@ async function scrapeMovie({title}) {
 						});
 				} else {
 					for (const stream of body) {
-						streams.push({
+						this.emit('stream', {
 							file_host: 'LoadShare', // Seems constant
 							file: stream.src,
 							quality: (stream.label ? stream.label : null)
@@ -95,18 +85,27 @@ async function scrapeMovie({title}) {
 					callback();
 				}
 			});
-		}, resolve);
-	});
-
-	return streams;
+		}, () => {
+			this.emit('finished');
+		});
+	}
 }
 
-module.exports = scrape;
+module.exports = GoMovies;
 
-/*
 (async () => {
+	const scraper = new GoMovies();
+
+	scraper.on('stream', stream => {
+		console.log(stream);
+	});
+
+	scraper.on('finished', () => {
+		console.timeEnd('scraping');
+	});
+	
 	console.time('scraping');
-	const streams = await scrape({
+	scraper.scrape({
 		title: 'Captain Marvel',
 		year: 2019,
 		ids: {
@@ -116,8 +115,4 @@ module.exports = scrape;
 			tmdb: 299537
 		}
 	}, 'movie');
-	console.timeEnd('scraping');
-
-	console.log(streams);
 })();
-*/

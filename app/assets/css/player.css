@@ -18,6 +18,6 @@
 	background-size: 100% 100%;
 }
 
-.plyr video {
-	object-fit: fill;
+video {
+	object-fit: cover;
 }

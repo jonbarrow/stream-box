@@ -1,3 +1,4 @@
+const { EventEmitter } = require('events');
 const got = require('got');
 const { JSDOM } = require('jsdom');
 const async = require('async');
@@ -12,46 +13,52 @@ const AJAX = `${URL_BASE}/wp-admin/admin-ajax.php`;
 const nonceRegex = /"nonce":"(.*?)"/;
 const sourceRegex = /src='(.*?)'/;
 
-async function scrape({title}) {
-	let response = await got(URL_BASE);
-	const homePage = response.body;
-
-	const nonceData = nonceRegex.exec(homePage);
-	if (!nonceData || !nonceData[1]) {
-		return null;
+class OneTwoFourMovies extends EventEmitter {
+	constructor() {
+		super();
 	}
 
-	const nonce = nonceData[1];
-
-	response = await got(`${URL_SEARCH}?keyword=${title}&nonce=${nonce}`, { json: true });
-	const searchResults = response.body;
-	
-	let movie;
-	for (const id in searchResults) {
-		const _movie = searchResults[id];
-		
-		if (_movie.title === title) {
-			movie = _movie;
-			break;
+	async scrape({title}, type) {
+		if (type !== 'movie') {
+			return this.emit('finished');
 		}
-	}
 
-	if (!movie) {
-		return null;
-	}
-
-	const {url} = movie;
-
-	response = await got(url);
-	const dom = new JSDOM(response.body);
-
-	const embedIdList =  [...dom.window.document.querySelectorAll('.dooplay_player_option')]
-		.map(element => element.dataset)
-		.filter(embed => (embed.post !== 'vs' && embed.nume !== 'trailer')); // "vs" links are special, I will write separate scrapers for them
-
-	const embedList = [];
-
-	await new Promise(resolve => {
+		let response = await got(URL_BASE);
+		const homePage = response.body;
+	
+		const nonceData = nonceRegex.exec(homePage);
+		if (!nonceData || !nonceData[1]) {
+			return this.emit('finished');
+		}
+	
+		const nonce = nonceData[1];
+	
+		response = await got(`${URL_SEARCH}?keyword=${title}&nonce=${nonce}`, { json: true });
+		const searchResults = response.body;
+		
+		let movie;
+		for (const id in searchResults) {
+			const _movie = searchResults[id];
+			
+			if (_movie.title === title) {
+				movie = _movie;
+				break;
+			}
+		}
+	
+		if (!movie) {
+			return this.emit('finished');
+		}
+	
+		const {url} = movie;
+	
+		response = await got(url);
+		const dom = new JSDOM(response.body);
+	
+		const embedIdList =  [...dom.window.document.querySelectorAll('.dooplay_player_option')]
+			.map(element => element.dataset)
+			.filter(embed => (embed.post !== 'vs' && embed.nume !== 'trailer')); // "vs" links are special, I will write separate scrapers for them
+	
 		async.each(embedIdList, ({post, nume, type}, callback) => {
 			got.post(`${AJAX}`, {
 				headers: {
@@ -64,21 +71,40 @@ async function scrape({title}) {
 					type
 				})
 			}).then(({body}) => {
-				embedList.push(sourceRegex.exec(body)[1]);
-				callback();
-			});
-		}, resolve);
-	});
+				const embed = sourceRegex.exec(body)[1];
+				embedScraper(embed)
+					.then(streams => {
+						if (streams) {
+							for (const stream of streams) {
+								this.emit('stream', stream);
+							}
+						}
 
-	return embedScraper(embedList);
+						callback();
+					});
+			});
+		}, () => {
+			this.emit('finished');
+		});
+	}
 }
 
-module.exports = scrape;
+module.exports = OneTwoFourMovies;
 
 /*
 (async () => {
+	const scraper = new OneTwoFourMovies();
+
+	scraper.on('stream', stream => {
+		console.log(stream);
+	});
+
+	scraper.on('finished', () => {
+		console.timeEnd('scraping');
+	});
+	
 	console.time('scraping');
-	const streams = await scrape({
+	scraper.scrape({
 		title: 'Captain Marvel',
 		year: 2019,
 		ids: {
@@ -88,8 +114,5 @@ module.exports = scrape;
 			tmdb: 299537
 		}
 	}, 'movie');
-	console.timeEnd('scraping');
-
-	console.log(streams);
 })();
 */

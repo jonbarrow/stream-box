@@ -1,3 +1,4 @@
+const { EventEmitter } = require('events');
 const got = require('got');
 const querystring = require('querystring');
 const async = require('async');
@@ -11,44 +12,46 @@ const AJAX = `${URL_BASE}/wp-admin/admin-ajax.php`;
 const movieIdRegex = /movie-id="(\d*?)"/;
 const sourceRegex = /src='(.*?)'/;
 
-async function scrape(traktDetails, type, season, episode) {
-	let url;
-	if (type === 'show') {
-		url = `${URL_BASE}/${traktDetails.ids.tmdb}-s${season}-e${episode}`;
-	} else {
-		url = `${URL_BASE}/film/${traktDetails.ids.imdb}`;
+class PutLockerTv extends EventEmitter {
+	constructor() {
+		super();
 	}
 
-	let response = await got(url);
-	const body = response.body;
+	async scrape(traktDetails, type, season, episode) {
+		let url;
+		if (type === 'show') {
+			url = `${URL_BASE}/${traktDetails.ids.tmdb}-s${season}-e${episode}`;
+		} else {
+			url = `${URL_BASE}/film/${traktDetails.ids.imdb}`;
+		}
+	
+		let response = await got(url);
+		const body = response.body;
+	
+		const movieIdData = movieIdRegex.exec(body);
+	
+		if (!movieIdData || !movieIdData[1]) {
+			return this.emit('finished');
+		}
+	
+		const movieID = movieIdData[1];
+	
+		response = await got.post(`${AJAX}`, {
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+			},
+			body: querystring.stringify({
+				action: 'lazy_player',
+				movieID
+			})
+		});
+	
+		const dom = new JSDOM(response.body);
+	
+		const embedIdList =  [...dom.window.document.querySelectorAll('.dooplay_player_option')]
+			.map(element => element.dataset)
+			.filter(embed => (embed.post !== 'vs' && embed.nume !== 'trailer')); // "vs" links are special, I will write separate scrapers for them
 
-	const movieIdData = movieIdRegex.exec(body);
-
-	if (!movieIdData || !movieIdData[1]) {
-		return null;
-	}
-
-	const movieID = movieIdData[1];
-
-	response = await got.post(`${AJAX}`, {
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-		},
-		body: querystring.stringify({
-			action: 'lazy_player',
-			movieID
-		})
-	});
-
-	const dom = new JSDOM(response.body);
-
-	const embedIdList =  [...dom.window.document.querySelectorAll('.dooplay_player_option')]
-		.map(element => element.dataset)
-		.filter(embed => (embed.post !== 'vs' && embed.nume !== 'trailer')); // "vs" links are special, I will write separate scrapers for them
-
-	const embedList = [];
-
-	await new Promise(resolve => {
 		async.each(embedIdList, ({post, nume, type}, callback) => {
 			got.post(`${AJAX}`, {
 				headers: {
@@ -61,21 +64,40 @@ async function scrape(traktDetails, type, season, episode) {
 					type
 				})
 			}).then(({body}) => {
-				embedList.push(sourceRegex.exec(body)[1]);
-				callback();
-			});
-		}, resolve);
-	});
+				const embed = sourceRegex.exec(body)[1];
+				embedScraper(embed)
+					.then(streams => {
+						if (streams) {
+							for (const stream of streams) {
+								this.emit('stream', stream);
+							}
+						}
 
-	return embedScraper(embedList);
+						callback();
+					});
+			});
+		}, () => {
+			this.emit('finished');
+		});
+	}
 }
 
-module.exports = scrape;
+module.exports = PutLockerTv;
 
 /*
 (async () => {
+	const scraper = new PutLockerTv();
+
+	scraper.on('stream', stream => {
+		console.log(stream);
+	});
+
+	scraper.on('finished', () => {
+		console.timeEnd('scraping');
+	});
+	
 	console.time('scraping');
-	const streams = await scrape({
+	scraper.scrape({
 		title: 'Captain Marvel',
 		year: 2019,
 		ids: {
@@ -85,16 +107,23 @@ module.exports = scrape;
 			tmdb: 299537
 		}
 	}, 'movie');
-	console.timeEnd('scraping');
-
-	console.log(streams);
 })();
 */
 
 /*
 (async () => {
+	const scraper = new PutLockerTv();
+
+	scraper.on('stream', stream => {
+		console.log(stream);
+	});
+
+	scraper.on('finished', () => {
+		console.timeEnd('scraping');
+	});
+	
 	console.time('scraping');
-	const streams = await scrape({
+	scraper.scrape({
 		title: 'House',
 		year: 2004,
 		ids: {
@@ -106,8 +135,5 @@ module.exports = scrape;
 			tvrage: 3908
 		}
 	}, 'show', 1, 1);
-	console.timeEnd('scraping');
-
-	console.log(streams);
 })();
 */

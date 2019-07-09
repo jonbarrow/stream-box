@@ -1,7 +1,7 @@
+const { EventEmitter } = require('events');
 const got = require('got');
 const async = require('async');
 const { JSDOM } = require('jsdom');
-const helpers = require('../../util/helpers');
 const embedScraper = require('../embed');
 
 const URL_BASE = 'https://f2movies.to';
@@ -12,43 +12,48 @@ const AJAX_EPISODES = `${AJAX_BASE}/v4_movie_episodes`;
 const AJAX_SOURCES = `${AJAX_BASE}/movie_sources`;
 const AJAX_EMBED = `${AJAX_BASE}/movie_embed`;
 
-async function scrape({title}) {
-	let response = await got(`${URL_SEARCH}/${escape(title).replace(/%20/g, '+')}`);
-	const searchResults = response.body;
-	let dom = new JSDOM(searchResults);
-
-	const movie = [...dom.window.document.querySelectorAll('.flw-item')]
-		.map(element => {
-			const dataUrl = element.querySelector('.flw-item-tip').dataset.url.split('/');
-			return {
-				name: element.querySelector('.film-name a').innerHTML,
-				id: dataUrl[2],
-				movie_id: dataUrl[3]
-			};
-		})
-		.find(({name}) => name === title);
-
-	if (!movie) {
-		return null;
+class F2Movies extends EventEmitter {
+	constructor() {
+		super();
 	}
 
-	response = await got(`${AJAX_EPISODES}/${movie.id}/${movie.movie_id}`, {
-		json: true
-	});
-	const {html} = response.body;
-	dom = new JSDOM(html);
+	async scrape({title}, type) {
+		if (type !== 'movie') {
+			return this.emit('finished');
+		}
 
-	const episodeDataList = [...dom.window.document.querySelectorAll('.nav-item')]
-		.map(element => ({
-			server: element.dataset.server,
-			id: element.dataset.id,
-			type: element.getAttribute('onclick').match(/'(\w*?)'/)[1]
-		}));
+		let response = await got(`${URL_SEARCH}/${escape(title).replace(/%20/g, '+')}`);
+		const searchResults = response.body;
+		let dom = new JSDOM(searchResults);
 
-	const embedList = [];
-	const streams = [];
-	
-	await new Promise(resolve => {
+		const movie = [...dom.window.document.querySelectorAll('.flw-item')]
+			.map(element => {
+				const dataUrl = element.querySelector('.flw-item-tip').dataset.url.split('/');
+				return {
+					name: element.querySelector('.film-name a').innerHTML,
+					id: dataUrl[2],
+					movie_id: dataUrl[3]
+				};
+			})
+			.find(({name}) => name === title);
+
+		if (!movie) {
+			return this.emit('finished');
+		}
+
+		response = await got(`${AJAX_EPISODES}/${movie.id}/${movie.movie_id}`, {
+			json: true
+		});
+		const {html} = response.body;
+		dom = new JSDOM(html);
+
+		const episodeDataList = [...dom.window.document.querySelectorAll('.nav-item')]
+			.map(element => ({
+				server: element.dataset.server,
+				id: element.dataset.id,
+				type: element.getAttribute('onclick').match(/'(\w*?)'/)[1]
+			}));
+		
 		async.each(episodeDataList, ({server, id, type}, callback) => {
 			let url;
 			
@@ -65,34 +70,54 @@ async function scrape({title}) {
 			got(url, {json: true})
 				.then(({body}) => {
 
-					if (type === 'direct' && body && body.playlist) {
-						for (const playlist of body.playlist) {
-							for (const source of playlist.sources) {
-								streams.push({
-									file_host: 'Google Video', // Seems to always be Google Video?
-									file: source.file,
-									quality: source.label,
-								});
+					if (type === 'direct') {
+						if (body && body.playlist) {
+							for (const playlist of body.playlist) {
+								for (const source of playlist.sources) {
+									this.emit('stream', {
+										file_host: 'Google Video', // Seems to always be Google Video?
+										file: source.file,
+										quality: source.label,
+									});
+								}
 							}
 						}
+
+						callback();
 					} else if (type === 'embed') {
-						embedList.push(body.src);
+						embedScraper(body.src)
+							.then(streams => {
+								if (streams) {
+									for (const stream of streams) {
+										this.emit('stream', stream);
+									}
+								}
+
+								callback();
+							});
 					}
-					
-					callback();
 				});
-		}, resolve);
-	});
-
-	return embedScraper(embedList).then(embedStreams => (helpers.mergeArrays(streams, embedStreams)));
+		}, () => {
+			this.emit('finished');
+		});
+	}
 }
-
-module.exports = scrape;
+module.exports = F2Movies;
 
 /*
 (async () => {
+	const scraper = new F2Movies();
+
+	scraper.on('stream', stream => {
+		console.log(stream);
+	});
+
+	scraper.on('finished', () => {
+		console.timeEnd('scraping');
+	});
+	
 	console.time('scraping');
-	const streams = await scrape({
+	scraper.scrape({
 		title: 'Captain Marvel',
 		year: 2019,
 		ids: {
@@ -102,8 +127,5 @@ module.exports = scrape;
 			tmdb: 299537
 		}
 	}, 'movie');
-	console.timeEnd('scraping');
-
-	console.log(streams);
 })();
 */

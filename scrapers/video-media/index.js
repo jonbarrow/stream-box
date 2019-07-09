@@ -1,8 +1,69 @@
 const async = require('async'); // asynchronous utils
+const { EventEmitter } = require('events');
 
 const scrapers = require('./scrapers'); // all anime scapers
-const {helpers, trakt} = require('../../util'); // util functions
+const {trakt} = require('../../util'); // util functions
 
+class VideoMediaScraper extends EventEmitter {
+	constructor() {
+		super();
+	}
+
+	async scrape(id, season, episode) {
+		let details;
+		let type;
+
+		if (season && episode) {
+			details = await trakt.showDetails(id);
+			type = 'show';
+		} else {
+			details = await trakt.movieDetails(id);
+			type = 'movie';
+		}
+
+		async.each(scrapers, (Scraper, callback) => {
+			const scraper = new Scraper();
+
+			scraper.on('stream', stream => {
+				this.emit('stream', stream);
+			});
+
+			scraper.on('finished', callback);
+
+			scraper.scrape(details, type, this.season, this.episode);
+		}, () => {
+			this.emit('finished');
+		});
+	}
+}
+
+module.exports = VideoMediaScraper;
+
+/*
+// Tesing
+(async () => {
+	const streams = [];
+	const scraper = new VideoMediaScraper();
+
+	scraper.on('stream', stream => {
+		streams.push(stream);
+		console.log(stream);
+	});
+
+	scraper.on('finished', () => {
+		console.timeEnd('Scrape Time');
+		console.log(`Scrapers: ${Object.keys(scrapers).length}`);
+		console.log(`Total streams: ${streams.length}`);
+		console.log(streams);
+	});
+	
+	console.log('Starting Captain Marvel scraping');
+	console.time('Scrape Time');
+	scraper.scrape('tt4154664');
+})();
+*/
+
+/*
 async function getStreams(id, season=1, episode=1) {
 	let streams = []; // All streams will end up in here, this will be returned
 	let details;
@@ -43,9 +104,9 @@ async function getStreams(id, season=1, episode=1) {
 	});
 }
 
+
 module.exports = getStreams;
 
-/*
 // Tesing
 (async () => {
 	console.time('Scrape Time');

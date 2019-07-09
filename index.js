@@ -1,6 +1,5 @@
 process.on('unhandledRejection', (reason, p) => {
 	console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
-	// application specific logging, throwing an error, or other logic here
 });
 
 const { BrowserWindow, app, ipcMain } = require('electron');
@@ -173,9 +172,14 @@ ipcMain.on('scrape-streams', async(event, { id, season, episode }) => {
 	});
 
 	SCRAPE_PROCESS.on('message', message => {
-		event.sender.send('streams', message);
-		if (!SCRAPE_PROCESS.killed) {
-			SCRAPE_PROCESS.kill();
+		if (message.event === 'stream') {
+			event.sender.send('stream', message.data);
+		} else if (message.event === 'finished') {
+			if (!SCRAPE_PROCESS.killed) {
+				SCRAPE_PROCESS.kill();
+			}
+		} else {
+			throw new Error ('Unknown scrape process event', message.event);
 		}
 	});
 });

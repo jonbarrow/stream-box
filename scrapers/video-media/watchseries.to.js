@@ -1,32 +1,65 @@
+const { EventEmitter } = require('events');
 const got = require('got');
 const { JSDOM } = require('jsdom');
+const async = require('async');
 const embedScraper = require('../embed');
 
 const URL_BASE = 'http://dwatchseries.to/episode';
 
-async function scrape(traktDetails, type, season, episode) {
-	if (type !== 'show') return null;
-	
-	const url = `${URL_BASE}/${traktDetails.ids.slug.replace(/-/g, '_')}_s${season}_e${episode}.html`;
+class WatchSeries extends EventEmitter {
+	constructor() {
+		super();
+	}
 
-	const {body} = await got(url);
+	async scrape(traktDetails, type, season, episode) {
+		if (type !== 'show') {
+			return this.emit('finished');
+		}
 
-	const dom = new JSDOM(body);
+		const url = `${URL_BASE}/${traktDetails.ids.slug.replace(/-/g, '_')}_s${season}_e${episode}.html`;
 
-	const embedList =  [...dom.window.document.querySelectorAll('.watchlink')]
-		.map(element => {
-			return Buffer.from(element.href.split('r=')[1], 'base64').toString();
+		const {body} = await got(url);
+
+		const dom = new JSDOM(body);
+
+		const embedList =  [...dom.window.document.querySelectorAll('.watchlink')]
+			.map(element => {
+				return Buffer.from(element.href.split('r=')[1], 'base64').toString();
+			});
+
+		async.each(embedList, (embed, callback) => {
+			embedScraper(embed)
+				.then(streams => {
+					if (streams) {
+						for (const stream of streams) {
+							this.emit('stream', stream);
+						}
+					}
+
+					callback();
+				});
+		}, () => {
+			this.emit('finished');
 		});
-
-	return embedScraper(embedList);
+	}
 }
 
-module.exports = scrape;
+module.exports = WatchSeries;
 
 /*
 (async () => {
+	const scraper = new WatchSeries();
+
+	scraper.on('stream', stream => {
+		console.log(stream);
+	});
+
+	scraper.on('finished', () => {
+		console.timeEnd('scraping');
+	});
+	
 	console.time('scraping');
-	const streams = await scrape({
+	scraper.scrape({
 		title: 'House',
 		year: 2004,
 		ids: {
@@ -38,8 +71,5 @@ module.exports = scrape;
 			tvrage: 3908
 		}
 	}, 'show', 1, 1);
-	console.timeEnd('scraping');
-
-	console.log(streams);
 })();
 */

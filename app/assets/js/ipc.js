@@ -334,15 +334,15 @@ ipcRenderer.on('search-results', (event, {type, search_query, results}) => {
 	hideLoader();
 });
 
-ipcRenderer.on('streams', (event, streams) => {
+ipcRenderer.once('stream', (event, stream) => {
 	hideLoader();
+	
+	startStream(stream);
+});
 
-	const source = streams[0]; // default to first stream
-	if (source) {
-		startStream(source.file);
-	} else {
-		alert('No streams found');
-	}
+ipcRenderer.on('stream', (event, stream) => {
+	// Populate a stream list to pick which stream should be played
+	console.log(stream);
 });
 
 // Get around eslint no-unused-vars, and make 100% sure the variables are global

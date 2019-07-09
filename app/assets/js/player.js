@@ -2,6 +2,7 @@
 /*
 	global
 		Plyr
+		Hls
 */
 
 const isPi = require('detect-rpi');
@@ -44,14 +45,32 @@ function setPlayerBackground(image) {
 	player.poster = image;
 }
 
-function startStream(source) {
+function startStream(stream) {
 	if (isPi()) { // Pi's get to use omxplayer until I find something better
-		omxplayer.init(source);
+		omxplayer.init(stream.file);
 	} else { // Non-pi systems get Plyr
-		if (video.src !== source) {
-			video.src = source;
+		if (stream.m3u8) {
+			if (Hls.isSupported()) {
+				console.log(`Hls.isSupported() ${stream.file}`);
+				const hls = new Hls();
+				hls.loadSource(stream.file);
+				hls.attachMedia(video);
+				hls.on(Hls.Events.MANIFEST_PARSED, () => {
+					video.play();
+				});
+			} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+				console.log(`video.canPlayType('application/vnd.apple.mpegurl') ${stream.file}`);
+				video.src = stream.file;
+				video.addEventListener('loadedmetadata', () => {
+					video.play();
+				});
+			}
 		} else {
-			player.play();
+			if (video.src !== stream.file) {
+				video.src = stream.file;
+			} else {
+				player.play();
+			}
 		}
 	
 		showPlayer();
