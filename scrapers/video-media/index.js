@@ -1,3 +1,7 @@
+process.on('unhandledRejection', (reason, p) => {
+	console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+});
+
 const async = require('async'); // asynchronous utils
 const { EventEmitter } = require('events');
 
@@ -30,7 +34,7 @@ class VideoMediaScraper extends EventEmitter {
 
 			scraper.on('finished', callback);
 
-			scraper.scrape(details, type, this.season, this.episode);
+			scraper.scrape(details, type, season, episode);
 		}, () => {
 			this.emit('finished');
 		});
@@ -57,9 +61,9 @@ module.exports = VideoMediaScraper;
 		console.log(streams);
 	});
 	
-	console.log('Starting Captain Marvel scraping');
+	console.log('Starting Aggretsuko scraping');
 	console.time('Scrape Time');
-	scraper.scrape('tt4154664');
+	scraper.scrape('tt8019444', 1, 1);
 })();
 */
 

@@ -69,7 +69,7 @@ function loadPage(id) {
 	}
 
 	const selectedNavigation = document.querySelector('.navigation-item.selected');
-	if (id !== selectedNavigation.dataset.navigation) {
+	if (!selectedNavigation || id !== selectedNavigation.dataset.navigation) {
 		if (selectedNavigation) {
 			selectedNavigation.classList.remove('selected');
 		}

@@ -58,6 +58,7 @@ typings/
 .env
 
 # custom
+live-tv
 plyr
 ocr.js
 scrapers/video-media/fmovies.to.js
