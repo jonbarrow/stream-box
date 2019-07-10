@@ -54,6 +54,7 @@ app.on('ready', () => {
 		icon: `${LOCAL_RESOURCES_ROOT}/icon.ico`,
 		minHeight: '300px',
 		minWidth: '500px',
+		//fullscreen: true,
 		webPreferences: {
 			nodeIntegration: true
 		}
