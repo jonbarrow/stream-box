@@ -50,13 +50,14 @@ const castListObserver = new IntersectionObserver(castListObserverCallback, {
 	threshold: 1.0
 });
 
-function loadMediaDetails(id) {
+function loadMediaDetails(id, type) {
 	if (currentSelectedMediaId !== id) {
 		disallowBodyScroll();
 		showLoader();
 		
 		ipcRenderer.send('load-media-details', {
-			id
+			id,
+			type
 		});
 	} else {
 		loadMediaDetailsPage();
@@ -186,7 +187,7 @@ ipcRenderer.on('update-home-popular-movies', async (event, data) => {
 		} // needs an else
 
 		addEvent(template, 'click', () => {
-			loadMediaDetails(movie.id);
+			loadMediaDetails(movie.id, movie.object_type);
 		});
 
 		HOME_MOVIE_LIST.appendChild(template);
@@ -207,7 +208,7 @@ ipcRenderer.on('update-home-popular-tvshows', (event, data) => {
 		} // needs an else
 
 		addEvent(template, 'click', () => {
-			loadMediaDetails(show.id);
+			loadMediaDetails(show.id, show.object_type);
 		});
 
 		HOME_TVSHOW_LIST.appendChild(template);
@@ -234,7 +235,7 @@ ipcRenderer.on('search-suggestions', (event, data) => {
 		releaseYear.innerHTML = searchSuggestion.original_release_year;
 
 		addEvent(template, 'click', () => {
-			loadMediaDetails(searchSuggestion.id);
+			loadMediaDetails(searchSuggestion.id, searchSuggestion.object_type);
 		});
 
 		OVERLAY_SEARCH_SUGGESTIONS.appendChild(template);
@@ -291,7 +292,7 @@ ipcRenderer.on('update-media-details', (event, data) => {
 		} // needs an else
 
 		addEvent(template, 'click', () => {
-			loadMediaDetails(related.id);
+			loadMediaDetails(related.id, related.object_type);
 		});
 
 		MEDIA_DETAILS_PAGE_RELATED.appendChild(template);
@@ -313,18 +314,18 @@ ipcRenderer.on('search-results', (event, {type, search_query, results}) => {
 
 	mediaList.innerHTML = '';
 
-	const shows = results.items;
+	const media = results.items;
 
-	for (const show of shows) {
+	for (const item of media) {
 		const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
 		
 		const poster = template.querySelector('.poster');
-		if (show.poster) {
-			poster.src = cachedImageUrl(`https://images.justwatch.com${show.poster.replace('{profile}', 's166')}`);
+		if (item.poster) {
+			poster.src = cachedImageUrl(`https://images.justwatch.com${item.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		addEvent(template, 'click', () => {
-			loadMediaDetails(show.id);
+			loadMediaDetails(item.id, item.object_type);
 		});
 
 		mediaList.appendChild(template);

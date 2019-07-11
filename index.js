@@ -107,9 +107,15 @@ ipcMain.on('get-search-suggestions', async(event, { search_query }) => {
 	event.sender.send('search-suggestions', suggestions);
 });
 
-ipcMain.on('load-media-details', async(event, { id }) => {
-	const details = await justwatch.movieDetails(id);
-	const related = await justwatch.relatedMedia(id, details.object_type);
+ipcMain.on('load-media-details', async(event, { id, type }) => {
+	let details;
+	if (type === 'show') {
+		details = await justwatch.showDetails(id);
+	} else {
+		details = await justwatch.movieDetails(id);
+	}
+	
+	const related = await justwatch.relatedMedia(id, type);
 
 	const imdbId = (details.external_ids.find(id => id.provider === 'imdb')).external_id;
 

@@ -5,6 +5,7 @@ const API_BASE = 'https://apis.justwatch.com';
 const API_SEARCH = `${API_BASE}/content/titles/en_US/popular`;
 const API_POPULAR = `${API_BASE}/content/titles/en_US/popular`;
 const API_MOVIE_DETAILS = `${API_BASE}/content/titles/movie/{id}/locale/en_US`;
+const API_SHOW_DETAILS = `${API_BASE}/content/titles/show/{id}/locale/en_US`;
 const API_RECOMMENDATIONS = `${API_BASE}/content/titles/en_US/recommendations`;
 
 async function getPopularMovies(page=1) {
@@ -87,6 +88,14 @@ async function movieDetails(id) {
 	return response.body;
 }
 
+async function showDetails(id) {
+	const response = await got(API_SHOW_DETAILS.replace('{id}', id), {
+		json: true
+	});
+	
+	return response.body;
+}
+
 async function relatedMedia(id, type) {
 	let prefix = 't';
 
@@ -118,6 +127,7 @@ module.exports = {
 	searchMovies,
 	searchShows,
 	movieDetails,
+	showDetails,
 	relatedMedia
 };
 
