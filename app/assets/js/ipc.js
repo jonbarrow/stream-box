@@ -1,30 +1,24 @@
 /* eslint-env browser */
 /*
 	global
-		CURRENT_LOADED_PAGE
-		OVERLAY_SEARCH_BAR_INPUT
-		OVERLAY_SEARCH_BAR_SPINNER
-		OVERLAY_SEARCH_SUGGESTIONS
 		HOME_CAROUSEL_LIST
 		HOME_MOVIE_LIST
 		HOME_TVSHOW_LIST
-		MEDIA_DETAILS_PAGE_WATCH_NOW
-		MEDIA_DETAILS_PAGE_BACKDROP
-		MEDIA_DETAILS_PAGE_TITLE
-		MEDIA_DETAILS_PAGE_AGE_RATING
-		MEDIA_DETAILS_PAGE_RUNTIME
-		MEDIA_DETAILS_PAGE_GENRES
-		MEDIA_DETAILS_PAGE_RELEASE_YEAR
-		MEDIA_DETAILS_PAGE_POSTER
-		MEDIA_DETAILS_PAGE_SYNOPSIS
-		MEDIA_DETAILS_PAGE_CAST
-		MEDIA_DETAILS_PAGE_VIDEOS
-		MEDIA_DETAILS_PAGE_RELATED
-		MOVIES_PAGE_MEDIA_LIST
-		MOVIES_PAGE_SEARCH_QUERY
-		loadPage
-		loadMediaDetailsPage
-		clearSearchSuggestions
+		MOVIE_DETAILS_PAGE_WATCH_NOW
+		MOVIE_DETAILS_PAGE_BACKDROP
+		MOVIE_DETAILS_PAGE_TITLE
+		MOVIE_DETAILS_PAGE_AGE_RATING
+		MOVIE_DETAILS_PAGE_RUNTIME
+		MOVIE_DETAILS_PAGE_GENRES
+		MOVIE_DETAILS_PAGE_RELEASE_YEAR
+		MOVIE_DETAILS_PAGE_POSTER
+		MOVIE_DETAILS_PAGE_SYNOPSIS
+		MOVIE_DETAILS_PAGE_CAST
+		MOVIE_DETAILS_PAGE_VIDEOS
+		MOVIE_DETAILS_PAGE_RELATED
+		SEARCH_PAGE_MEDIA_LIST
+		SEARCH_PAGE_SEARCH_INPUT
+		loadMovieDetailsPage
 		cachedImageUrl
 		addEvent
 		showLoader
@@ -50,7 +44,7 @@ const castListObserver = new IntersectionObserver(castListObserverCallback, {
 	threshold: 1.0
 });
 
-function loadMediaDetails(id, type) {
+function loadMovieDetails(id, type) {
 	if (currentSelectedMediaId !== id) {
 		disallowBodyScroll();
 		showLoader();
@@ -60,38 +54,26 @@ function loadMediaDetails(id, type) {
 			type
 		});
 	} else {
-		loadMediaDetailsPage();
+		loadMovieDetailsPage();
 	}
-}
-
-function getSearchSuggestions() {
-	const searchQuery = OVERLAY_SEARCH_BAR_INPUT.value;
-	ipcRenderer.send('get-search-suggestions', {
-		search_query: searchQuery
-	});
 }
 
 function searchMedia() {
-	const searchQuery = OVERLAY_SEARCH_BAR_INPUT.value;
-	let type;
-
-	switch (CURRENT_LOADED_PAGE) {
-		case 'home-page':
-		case 'movies-page':
-			type = 'movie';
-			break;
-		case 'tvshows-page':
-			type = 'show';
-			break;
-		default:
-			type = 'movie';
-			break;
+	const searchQuery = SEARCH_PAGE_SEARCH_INPUT.value;
+	if (searchQuery.trim() === '') {
+		return;
 	}
 
-	ipcRenderer.send('search-media', {
-		search_query: searchQuery,
-		type
-	});
+	const filters = [...document.querySelectorAll('.search-filter')]
+		.map(filter => {
+			const optionIndex = filter.querySelector('.filter-value').dataset.optionIndex;
+			return {
+				type: filter.dataset.filter,
+				value: filter.querySelector(`[data-index="${optionIndex}"]`).dataset.value
+			};
+		});
+
+	ipcRenderer.send('search-media', {search_query: searchQuery, filters});
 
 	showLoader();
 }
@@ -104,7 +86,7 @@ function castListObserverCallback(entries) {
 
 function updateCastListObserver() {
 	castListObserver.disconnect();
-	castListObserver.observe([...MEDIA_DETAILS_PAGE_CAST.querySelectorAll('img')].pop());
+	castListObserver.observe([...MOVIE_DETAILS_PAGE_CAST.querySelectorAll('img')].pop());
 }
 
 function loadCastListSection() {
@@ -116,7 +98,7 @@ function loadCastListSection() {
 			img.classList.add('cast-member');
 			img.src = cachedImageUrl(castMember.profile);
 	
-			MEDIA_DETAILS_PAGE_CAST.appendChild(img);
+			MOVIE_DETAILS_PAGE_CAST.appendChild(img);
 		}
 	}
 
@@ -187,7 +169,7 @@ ipcRenderer.on('update-home-popular-movies', async (event, data) => {
 		} // needs an else
 
 		addEvent(template, 'click', () => {
-			loadMediaDetails(movie.id, movie.object_type);
+			loadMovieDetails(movie.id, movie.object_type);
 		});
 
 		HOME_MOVIE_LIST.appendChild(template);
@@ -208,7 +190,7 @@ ipcRenderer.on('update-home-popular-tvshows', (event, data) => {
 		} // needs an else
 
 		addEvent(template, 'click', () => {
-			loadMediaDetails(show.id, show.object_type);
+			loadMovieDetails(show.id, show.object_type);
 		});
 
 		HOME_TVSHOW_LIST.appendChild(template);
@@ -218,52 +200,26 @@ ipcRenderer.on('update-home-popular-tvshows', (event, data) => {
 	allowBodyScroll();
 });
 
-ipcRenderer.on('search-suggestions', (event, data) => {
-	clearSearchSuggestions();
-
-	for (const searchSuggestion of data.items) {
-		const template = document.querySelector('[template="search-suggestion"]').content.firstElementChild.cloneNode(true);
-		
-		const poster = template.querySelector('.poster');
-		const title = template.querySelector('.title');
-		const releaseYear = template.querySelector('.release-year');
-
-		if (searchSuggestion.poster) {
-			poster.src = cachedImageUrl(`https://images.justwatch.com${searchSuggestion.poster.replace('{profile}', 's166')}`);
-		} // needs an else
-		title.innerHTML = searchSuggestion.title;
-		releaseYear.innerHTML = searchSuggestion.original_release_year;
-
-		addEvent(template, 'click', () => {
-			loadMediaDetails(searchSuggestion.id, searchSuggestion.object_type);
-		});
-
-		OVERLAY_SEARCH_SUGGESTIONS.appendChild(template);
-	}
-
-	OVERLAY_SEARCH_BAR_SPINNER.classList.add('hide');
-});
-
 ipcRenderer.on('update-media-details', (event, data) => {
-	MEDIA_DETAILS_PAGE_WATCH_NOW.onclick = function() {
+	MOVIE_DETAILS_PAGE_WATCH_NOW.onclick = function() {
 		showLoader();
 		scrapeStreams(data.imdb_id);
 	};
 
 	setPlayerBackground(cachedImageUrl(data.images.backdrop));
 
-	MEDIA_DETAILS_PAGE_BACKDROP.src = cachedImageUrl(data.images.backdrop);
-	MEDIA_DETAILS_PAGE_TITLE.innerHTML = data.title;
-	MEDIA_DETAILS_PAGE_AGE_RATING.innerHTML = data.age_rating;
-	MEDIA_DETAILS_PAGE_RUNTIME.innerHTML = `${Math.floor(data.runtime / 60)}h${data.runtime % 60}m`;
-	MEDIA_DETAILS_PAGE_GENRES.innerHTML = data.genres.join(', ');
-	MEDIA_DETAILS_PAGE_RELEASE_YEAR.innerHTML = data.release_year;
-	MEDIA_DETAILS_PAGE_POSTER.src = cachedImageUrl(data.images.poster);
-	MEDIA_DETAILS_PAGE_SYNOPSIS.innerHTML = data.synopsis;
+	MOVIE_DETAILS_PAGE_BACKDROP.src = cachedImageUrl(data.images.backdrop);
+	MOVIE_DETAILS_PAGE_TITLE.innerHTML = data.title;
+	MOVIE_DETAILS_PAGE_AGE_RATING.innerHTML = data.age_rating;
+	MOVIE_DETAILS_PAGE_RUNTIME.innerHTML = `${Math.floor(data.runtime / 60)}h${data.runtime % 60}m`;
+	MOVIE_DETAILS_PAGE_GENRES.innerHTML = data.genres.join(', ');
+	MOVIE_DETAILS_PAGE_RELEASE_YEAR.innerHTML = data.release_year;
+	MOVIE_DETAILS_PAGE_POSTER.src = cachedImageUrl(data.images.poster);
+	MOVIE_DETAILS_PAGE_SYNOPSIS.innerHTML = data.synopsis;
 
-	MEDIA_DETAILS_PAGE_CAST.innerHTML = '';
-	MEDIA_DETAILS_PAGE_VIDEOS.innerHTML = '';
-	MEDIA_DETAILS_PAGE_RELATED.innerHTML = '';
+	MOVIE_DETAILS_PAGE_CAST.innerHTML = '';
+	MOVIE_DETAILS_PAGE_VIDEOS.innerHTML = '';
+	MOVIE_DETAILS_PAGE_RELATED.innerHTML = '';
 
 	currentSelectedMediaCast = data.cast;
 	currentSelectedMediaCastPosition = -1;
@@ -279,7 +235,7 @@ ipcRenderer.on('update-media-details', (event, data) => {
 			iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
 			iframe.allowfullscreen = true;
 	
-			MEDIA_DETAILS_PAGE_VIDEOS.appendChild(iframe);
+			MOVIE_DETAILS_PAGE_VIDEOS.appendChild(iframe);
 		}
 	}
 
@@ -292,27 +248,22 @@ ipcRenderer.on('update-media-details', (event, data) => {
 		} // needs an else
 
 		addEvent(template, 'click', () => {
-			loadMediaDetails(related.id, related.object_type);
+			loadMovieDetails(related.id, related.object_type);
 		});
 
-		MEDIA_DETAILS_PAGE_RELATED.appendChild(template);
+		MOVIE_DETAILS_PAGE_RELATED.appendChild(template);
 	}
 
 	currentSelectedMediaId = data.id;
 
-	loadMediaDetailsPage();
+	loadMovieDetailsPage();
 	hideLoader();
 	allowBodyScroll();
 });
 
 
-ipcRenderer.on('search-results', (event, {type, search_query, results}) => {
-	const pageId = (type === 'show' ? 'tvshows-page' : 'movies-page');
-	const mediaList = (type === 'show' ? MOVIES_PAGE_MEDIA_LIST : MOVIES_PAGE_MEDIA_LIST); // Update to support the tv show page
-	
-	MOVIES_PAGE_SEARCH_QUERY.innerHTML = search_query;
-
-	mediaList.innerHTML = '';
+ipcRenderer.on('search-results', (event, results) => {
+	SEARCH_PAGE_MEDIA_LIST.innerHTML = '';
 
 	const media = results.items;
 
@@ -325,13 +276,12 @@ ipcRenderer.on('search-results', (event, {type, search_query, results}) => {
 		} // needs an else
 
 		addEvent(template, 'click', () => {
-			loadMediaDetails(item.id, item.object_type);
+			loadMovieDetails(item.id, item.object_type);
 		});
 
-		mediaList.appendChild(template);
+		SEARCH_PAGE_MEDIA_LIST.appendChild(template);
 	}
 
-	loadPage(pageId);
 	hideLoader();
 });
 
@@ -348,6 +298,5 @@ ipcRenderer.on('stream', (event, stream) => {
 
 // Get around eslint no-unused-vars, and make 100% sure the variables are global
 !function() {
-	this.getSearchSuggestions = getSearchSuggestions;
 	this.searchMedia = searchMedia;
 }();

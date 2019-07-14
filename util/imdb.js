@@ -4,6 +4,7 @@ const aws4 = require('aws4');
 const API_BASE = 'api.imdbws.com';
 const API_TEMP_CREDS = `${API_BASE}/authentication/credentials/temporary/ios85`;
 const API_CREDITS = '/title/{id}/fullcredits';
+const API_EPISODES = '/title/{id}/episodes';
 
 class IMDBClient {
 	constructor() {
@@ -60,6 +61,12 @@ class IMDBClient {
 		});
 
 		return body;
+	}
+
+	async episodes(id) {
+		const {resource} = await this._apiRequest(API_EPISODES.replace('{id}', id));
+		return resource;
+		//https://api.imdbws.com/title/tt0606030/
 	}
 
 	async credits(id) {

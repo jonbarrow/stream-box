@@ -1,48 +1,41 @@
 /* eslint-env browser */
 
+/* global searchMedia */
+
 const imageCache = require('image-cache');
 
 // Misc globals
 const LOADER = document.getElementById('loader');
 let CURRENT_LOADED_PAGE = 'home-page';
 
-// Overlay globals
-const OVERLAY_SEARCH_BAR_INPUT = document.getElementById('search-input');
-const OVERLAY_SEARCH_BAR_SPINNER = document.querySelector('.search-suggestion.spinner');
-const OVERLAY_SEARCH_SUGGESTIONS = document.getElementById('search-suggestions');
-
 // Navigation globals
 const NAV_ALL = document.querySelectorAll('[data-navigation]');
-const NAV_HOME = document.querySelector('[data-navigation="home-page"]');
-const NAV_MOVIES = document.querySelector('[data-navigation="movies-page"]');
-const NAV_TVSHOWS = document.querySelector('[data-navigation="tvshows-page"]');
-const NAV_GENRES = document.querySelector('[data-navigation="genres-page"]');
-const NAV_FAVORITES = document.querySelector('[data-navigation="favorites-page"]');
 
-// Media Details page globals
-const MEDIA_DETAILS_PAGE = document.getElementById('media-details-page');
-const MEDIA_DETAILS_PAGE_WATCH_NOW = document.getElementById('watch-now');
-const MEDIA_DETAILS_PAGE_BACKDROP = MEDIA_DETAILS_PAGE.querySelector('.header .wrapper .backdrop');
-const MEDIA_DETAILS_PAGE_TITLE = MEDIA_DETAILS_PAGE.querySelector('.header .wrapper .metadata .title');
-const MEDIA_DETAILS_PAGE_AGE_RATING = MEDIA_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .age-rating');
-const MEDIA_DETAILS_PAGE_RUNTIME = MEDIA_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .runtime');
-const MEDIA_DETAILS_PAGE_GENRES = MEDIA_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .genres');
-const MEDIA_DETAILS_PAGE_RELEASE_YEAR = MEDIA_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .release-year');
-const MEDIA_DETAILS_PAGE_POSTER = MEDIA_DETAILS_PAGE.querySelector('.content img.poster');
-const MEDIA_DETAILS_PAGE_SYNOPSIS = MEDIA_DETAILS_PAGE.querySelector('.content .information .synopsis .body');
-const MEDIA_DETAILS_PAGE_CAST = MEDIA_DETAILS_PAGE.querySelector('.content .information .cast .body');
-const MEDIA_DETAILS_PAGE_VIDEOS = MEDIA_DETAILS_PAGE.querySelector('.content .other-media .videos .body');
-const MEDIA_DETAILS_PAGE_RELATED = MEDIA_DETAILS_PAGE.querySelector('.content .other-media .related .body');
+// Movie Details page globals
+const MOVIE_DETAILS_PAGE = document.getElementById('movie-details-page');
+const MOVIE_DETAILS_PAGE_WATCH_NOW = document.getElementById('watch-now');
+const MOVIE_DETAILS_PAGE_BACKDROP = MOVIE_DETAILS_PAGE.querySelector('.header .wrapper .backdrop');
+const MOVIE_DETAILS_PAGE_TITLE = MOVIE_DETAILS_PAGE.querySelector('.header .wrapper .metadata .title');
+const MOVIE_DETAILS_PAGE_AGE_RATING = MOVIE_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .age-rating');
+const MOVIE_DETAILS_PAGE_RUNTIME = MOVIE_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .runtime');
+const MOVIE_DETAILS_PAGE_GENRES = MOVIE_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .genres');
+const MOVIE_DETAILS_PAGE_RELEASE_YEAR = MOVIE_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .release-year');
+const MOVIE_DETAILS_PAGE_POSTER = MOVIE_DETAILS_PAGE.querySelector('.content img.poster');
+const MOVIE_DETAILS_PAGE_SYNOPSIS = MOVIE_DETAILS_PAGE.querySelector('.content .information .synopsis .body');
+const MOVIE_DETAILS_PAGE_CAST = MOVIE_DETAILS_PAGE.querySelector('.content .information .cast .body');
+const MOVIE_DETAILS_PAGE_VIDEOS = MOVIE_DETAILS_PAGE.querySelector('.content .other-media .videos .body');
+const MOVIE_DETAILS_PAGE_RELATED = MOVIE_DETAILS_PAGE.querySelector('.content .other-media .related .body');
 
 // Home page globals
 const HOME_CAROUSEL_LIST = document.querySelector('#home-page .carousel');
 const HOME_MOVIE_LIST = document.querySelector('#home-page-popular-movies .body');
 const HOME_TVSHOW_LIST = document.querySelector('#home-page-popular-tvshows .body');
 
-// Movies page globals
-const MOVIES_PAGE = document.getElementById('movies-page');
-const MOVIES_PAGE_SEARCH_QUERY = MOVIES_PAGE.querySelector('.query');
-const MOVIES_PAGE_MEDIA_LIST = MOVIES_PAGE.querySelector('.list');
+// Search page globals
+const SEARCH_PAGE = document.getElementById('search-page');
+const SEARCH_PAGE_SEARCH_INPUT= SEARCH_PAGE.querySelector('#search-input');
+const SEARCH_PAGE_SEARCH_QUERY = SEARCH_PAGE.querySelector('.query');
+const SEARCH_PAGE_MEDIA_LIST = SEARCH_PAGE.querySelector('.list');
 
 function addEvent(object, event, func) {
 	object.addEventListener(event, func, true);
@@ -88,8 +81,8 @@ function loadHomePage() {
 	loadPage('home-page');
 }
 
-function loadMediaDetailsPage() {
-	loadPage('media-details-page');
+function loadMovieDetailsPage() {
+	loadPage('movie-details-page');
 }
 
 function showOverlay(id) {
@@ -121,6 +114,7 @@ function allowBodyScroll() {
 	document.body.classList.remove('noscroll');
 }
 
+
 const toggle = document.getElementsByClassName('stream-site');
 
 for (let i = 0; i < toggle.length; i++) {
@@ -137,36 +131,29 @@ for (let i = 0; i < toggle.length; i++) {
 // Get around eslint no-unused-vars, and make 100% sure the variables are global
 !function() {
 	this.CURRENT_LOADED_PAGE = CURRENT_LOADED_PAGE;
-	this.OVERLAY_SEARCH_BAR_INPUT = OVERLAY_SEARCH_BAR_INPUT;
-	this.OVERLAY_SEARCH_BAR_SPINNER = OVERLAY_SEARCH_BAR_SPINNER;
-	this.OVERLAY_SEARCH_SUGGESTIONS = OVERLAY_SEARCH_SUGGESTIONS;
-	this.NAV_HOME = NAV_HOME;
-	this.NAV_MOVIES = NAV_MOVIES;
-	this.NAV_TVSHOWS = NAV_TVSHOWS;
-	this.NAV_GENRES = NAV_GENRES;
-	this.NAV_FAVORITES = NAV_FAVORITES;
-	this.MEDIA_DETAILS_PAGE_WATCH_NOW = MEDIA_DETAILS_PAGE_WATCH_NOW;
-	this.MEDIA_DETAILS_PAGE_BACKDROP = MEDIA_DETAILS_PAGE_BACKDROP;
-	this.MEDIA_DETAILS_PAGE_TITLE = MEDIA_DETAILS_PAGE_TITLE;
-	this.MEDIA_DETAILS_PAGE_AGE_RATING = MEDIA_DETAILS_PAGE_AGE_RATING;
-	this.MEDIA_DETAILS_PAGE_RUNTIME = MEDIA_DETAILS_PAGE_RUNTIME;
-	this.MEDIA_DETAILS_PAGE_GENRES = MEDIA_DETAILS_PAGE_GENRES;
-	this.MEDIA_DETAILS_PAGE_RELEASE_YEAR = MEDIA_DETAILS_PAGE_RELEASE_YEAR;
-	this.MEDIA_DETAILS_PAGE_POSTER = MEDIA_DETAILS_PAGE_POSTER;
-	this.MEDIA_DETAILS_PAGE_SYNOPSIS = MEDIA_DETAILS_PAGE_SYNOPSIS;
-	this.MEDIA_DETAILS_PAGE_CAST = MEDIA_DETAILS_PAGE_CAST;
-	this.MEDIA_DETAILS_PAGE_VIDEOS = MEDIA_DETAILS_PAGE_VIDEOS;
-	this.MEDIA_DETAILS_PAGE_RELATED = MEDIA_DETAILS_PAGE_RELATED;
+	this.MOVIE_DETAILS_PAGE_WATCH_NOW = MOVIE_DETAILS_PAGE_WATCH_NOW;
+	this.MOVIE_DETAILS_PAGE_BACKDROP = MOVIE_DETAILS_PAGE_BACKDROP;
+	this.MOVIE_DETAILS_PAGE_TITLE = MOVIE_DETAILS_PAGE_TITLE;
+	this.MOVIE_DETAILS_PAGE_AGE_RATING = MOVIE_DETAILS_PAGE_AGE_RATING;
+	this.MOVIE_DETAILS_PAGE_RUNTIME = MOVIE_DETAILS_PAGE_RUNTIME;
+	this.MOVIE_DETAILS_PAGE_GENRES = MOVIE_DETAILS_PAGE_GENRES;
+	this.MOVIE_DETAILS_PAGE_RELEASE_YEAR = MOVIE_DETAILS_PAGE_RELEASE_YEAR;
+	this.MOVIE_DETAILS_PAGE_POSTER = MOVIE_DETAILS_PAGE_POSTER;
+	this.MOVIE_DETAILS_PAGE_SYNOPSIS = MOVIE_DETAILS_PAGE_SYNOPSIS;
+	this.MOVIE_DETAILS_PAGE_CAST = MOVIE_DETAILS_PAGE_CAST;
+	this.MOVIE_DETAILS_PAGE_VIDEOS = MOVIE_DETAILS_PAGE_VIDEOS;
+	this.MOVIE_DETAILS_PAGE_RELATED = MOVIE_DETAILS_PAGE_RELATED;
 	this.HOME_CAROUSEL_LIST = HOME_CAROUSEL_LIST;
 	this.HOME_MOVIE_LIST = HOME_MOVIE_LIST;
 	this.HOME_TVSHOW_LIST = HOME_TVSHOW_LIST;
-	this.MOVIES_PAGE_MEDIA_LIST = MOVIES_PAGE_MEDIA_LIST;
-	this.MOVIES_PAGE_SEARCH_QUERY = MOVIES_PAGE_SEARCH_QUERY;
+	this.SEARCH_PAGE_SEARCH_INPUT = SEARCH_PAGE_SEARCH_INPUT;
+	this.SEARCH_PAGE_MEDIA_LIST = SEARCH_PAGE_MEDIA_LIST;
+	this.SEARCH_PAGE_SEARCH_QUERY = SEARCH_PAGE_SEARCH_QUERY;
 
 	this.cachedImageUrl = cachedImageUrl;
 	this.loadPage = loadPage;
 	this.loadHomePage = loadHomePage;
-	this.loadMediaDetailsPage = loadMediaDetailsPage;
+	this.loadMovieDetailsPage = loadMovieDetailsPage;
 	this.hideLoader = hideLoader;
 	this.showLoader = showLoader;
 	this.disallowBodyScroll = disallowBodyScroll;

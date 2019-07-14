@@ -18,9 +18,10 @@
 	<link rel="stylesheet" href="./assets/css/overlays/streams.css">
 	<link rel="stylesheet" href="./assets/css/index.css">
 	<link rel="stylesheet" href="./assets/css/nav.css">
-	<link rel="stylesheet" href="./assets/css/pages/media-details.css">
+	<link rel="stylesheet" href="./assets/css/pages/movie-details.css">
+	<link rel="stylesheet" href="./assets/css/pages/show-details.css">
 	<link rel="stylesheet" href="./assets/css/pages/home.css">
-	<link rel="stylesheet" href="./assets/css/pages/movies.css">
+	<link rel="stylesheet" href="./assets/css/pages/search.css">
 
 	<script>
 		(typeof module === 'object' ? (window.module = module, module = undefined) : null)
@@ -49,18 +50,6 @@
 		</div>
 
 		<div id="overlays">
-			<div id="search-overlay" class="overlay">
-				<div class="content">
-					<h1>Search</h1>
-					<input id="search-input" type="text" class="searchbar" placeholder="Search...">
-					<div id="search-suggestions">
-						<div class="search-suggestion spinner hide">
-							<i class="fas fa-spinner fa-spin"></i>
-						</div>
-					</div>
-				</div>
-			</div>
-
 			<div id="streams-overlay" class="overlay">
 				<div class="content">
 					<ul id="stream-sites">
@@ -144,19 +133,15 @@
 		<nav id="top-navigation">
 			<ol>
 				<li data-navigation="home-page" class="navigation-item selected"><span>Home</span></li><!--
-			 --><li data-navigation="movies-page" class="navigation-item"><span>Movies</span></li><!--
-			 --><li data-navigation="tvshows-page" class="navigation-item"><span>Shows</span></li><!--
-			 --><li data-navigation="genres-page" class="navigation-item"><span>Genres</span></li><!--
+			 --><li data-navigation="search-page" class="navigation-item"><span>Search</span></li><!--
 			 --><li data-navigation="favorites-page" class="navigation-item"><span>Favorites</span></li>
 				<hr>
 			</ol>
-
-			<button id="search-button" class="search" data-overlay="search-overlay"><i class="fal fa-search"></i><span></span></button>
 		</nav>
 
 		<div id="pages">
 
-			<div id="media-details-page" class="page">
+			<div id="movie-details-page" class="page">
 				<div class="header">
 					<div class="wrapper">
 						<img class="backdrop">
@@ -202,6 +187,57 @@
 				</div>
 			</div>
 
+			<div id="show-details-page" class="page">
+				<div class="header">
+					<div class="wrapper">
+						<img class="backdrop" src="https://images.justwatch.com/backdrop/8599527/s1440/house-m-d">
+						<div class="metadata">
+							<h1 class="title">House</h1>
+							<ol class="details">
+								<li class="age-rating">PG-13</li>
+								<li class="genres">Medial, Drama</li>
+								<li class="release-year">2004</li>
+							</ol>
+							<div class="buttons">
+								<!--add "add to favorites" button-->
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="content">
+					<div class="information">
+						<div class="season-selection">
+							<div class="season-dropdown">
+								<div class="filter-select">
+									<div class="filter-value" data-option-index="0"></div>
+									<div class="filter-arrow"><i class="fal fa-chevron-down"></i></div>
+								</div>
+								<div class="filter-options">
+									<span class="option selected" data-index="0" data-value="all">Movies/TV Shows</span>
+									<span class="option" data-index="1" data-value="movie">Movies</span>
+									<span class="option" data-index="2" data-value="show">Shows</span>
+								</div>
+							</div>
+						</div>
+						<div class="poster">
+							<img class="poster" src="https://images.justwatch.com/poster/8592143/s166">
+						</div>
+					</div>
+					<div class="synopsis">
+						<h3 class="title">Synopsis</h3>
+						<div class="body"></div>
+					</div>
+					<div class="other-media">
+						<h3 class="title">Synopsis</h3>
+						<div class="body"></div>
+					</div>
+					<div class="episodes">
+						<h3 class="title">Synopsis</h3>
+						<div class="body"></div>
+					</div>
+				</div>
+			</div>
+
 			<div id="home-page" class="page active">
 				<div class="carousel"></div>
 				<div class="content">
@@ -234,23 +270,44 @@
 				</div>
 			</div>
 
-			<div id="movies-page" class="page">
+			<div id="search-page" class="page">
 				<div class="content">
-					<h1>Results for: <span class="query"></span></h1>
+					<div id="search-container">
+						<button id="search-icon">
+							<i class="fal fa-search"></i>
+						</button>
+						<input type="text" id="search-input" placeholder="Search...">
+					</div>
+					<div id="search-filters">
+						<div class="search-filter" data-type="list" data-filter="content-type">
+							<div class="filter-select">
+								<div class="filter-value" data-option-index="0"></div>
+								<div class="filter-arrow"><i class="fal fa-chevron-down"></i></div>
+							</div>
+							<div class="filter-options">
+								<span class="option selected" data-index="0" data-value="all">All</span>
+								<span class="option" data-index="1" data-value="movie">Movies</span>
+								<span class="option" data-index="2" data-value="show">Shows</span>
+							</div>
+						</div>
+						<!--
+						<div class="search-filter filter-list">
+							<div class="filter-select">
+								<div class="filter-value"></div>
+								<div class="filter-arrow"><i class="fal fa-chevron-down"></i></div>
+							</div>
+							<div class="filter-options">
+								<span class="option selected">All</span>
+								<span class="option">Movies</span>
+								<span class="option">Shows</span>
+							</div>
+						</div>
+						-->
+					</div>
 					<div class="list"></div>
 				</div>
 			</div>
 
-			<div id="tvshows-page" class="page">
-				<div class="content overlay-scrollbar">
-					Shows page
-					<div class="media fake-media"></div>
-				</div>
-			</div>
-
-			<div id="genres-page" class="page">
-				Genres page
-			</div>
 			<div id="favorites-page" class="page">
 				Favorites page
 			</div>
@@ -258,35 +315,35 @@
 	</div>
 
 	<template template="search-suggestion">
-			<div class="search-suggestion">
-				<div class="body">
-					<img class="poster">
-					<div class="information">
-						<h3 class="title"></h3>
-						<p class="release-year"></p>
-					</div>
+		<div class="search-suggestion">
+			<div class="body">
+				<img class="poster">
+				<div class="information">
+					<h3 class="title"></h3>
+					<p class="release-year"></p>
 				</div>
 			</div>
-		</template>
+		</div>
+	</template>
 
 	<template template="carousel-item">
-			<div class="carousel-item">
-				<img src="" alt="" class="backdrop">
-				<div class="metadata">
-					<h1 class="title"></h1>
-					<p class="description"></p>
-					<div class="buttons">
-						<button class="watch-now">Watch</button>
-					</div>
+		<div class="carousel-item">
+			<img src="" alt="" class="backdrop">
+			<div class="metadata">
+				<h1 class="title"></h1>
+				<p class="description"></p>
+				<div class="buttons">
+					<button class="watch-now">Watch</button>
 				</div>
 			</div>
-		</template>
+		</div>
+	</template>
 
 	<template template="media">
-			<div class="media">
-				<img src="" alt="" class="poster">
-			</div>
-		</template>
+		<div class="media">
+			<img src="" alt="" class="poster">
+		</div>
+	</template>
 </body>
 
 </html>

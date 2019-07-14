@@ -7,9 +7,11 @@
 		"lint": "eslint ."
 	},
 	"devDependencies": {
+		"@ctrl/cloudflare": "^1.4.3",
 		"electron": "^5.0.1",
 		"electron-builder": "^20.39.0",
-		"eslint": "^6.0.1"
+		"eslint": "^6.0.1",
+		"tough-cookie": "^3.0.1"
 	},
 	"keywords": [],
 	"author": "",

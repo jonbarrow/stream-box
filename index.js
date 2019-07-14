@@ -102,11 +102,6 @@ ipcMain.on('ready', async event => {
 	event.sender.send('update-home-popular-tvshows', popularTVShows);
 });
 
-ipcMain.on('get-search-suggestions', async(event, { search_query }) => {
-	const suggestions = await justwatch.searchAll(search_query, 1, 5);
-	event.sender.send('search-suggestions', suggestions);
-});
-
 ipcMain.on('load-media-details', async(event, { id, type }) => {
 	let details;
 	if (type === 'show') {
@@ -150,10 +145,13 @@ ipcMain.on('load-media-details', async(event, { id, type }) => {
 	});
 });
 
-ipcMain.on('search-media', async(event, { search_query, type }) => {
+ipcMain.on('search-media', async(event, {search_query, filters}) => {
 	let results;
-
-	switch (type) {
+	switch (filters[0].value) { // content-type
+		case 'all':
+		default:
+			results = await justwatch.searchAll(search_query);
+			break;
 		case 'movie':
 			results = await justwatch.searchMovies(search_query);
 			break;
@@ -162,7 +160,7 @@ ipcMain.on('search-media', async(event, { search_query, type }) => {
 			break;
 	}
 
-	event.sender.send('search-results', { type, search_query, results });
+	event.sender.send('search-results', results);
 });
 
 ipcMain.on('scrape-streams', async(event, { id, season, episode }) => {

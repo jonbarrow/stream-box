@@ -35,10 +35,14 @@ html, body, #app {
 	background-color: #15161A;
 }
 
-#pages {
-	padding-top: 7vh;
+.page {
+	position: absolute;
+	overflow: hidden;
+	width: 100vw;
+	min-height: 100vh;
 }
 
 .page:not(.active) {
-	display: none;
+	position: fixed; /*stops the non-visible elements from affecting scroll of visible element*/
+	visibility: hidden;
 }

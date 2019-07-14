@@ -1,0 +1,146 @@
+#show-details-page .header {
+	height: 30vh;
+	color: #E0E2E6;
+}
+
+#show-details-page .content {
+	min-height: 62vh;
+	max-height: 62vh;
+	padding-bottom: 1vh;
+	color: #E0E2E6;
+	/*margin: 50px;*/
+}
+
+#show-details-page .header .wrapper {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	position: relative;
+}
+
+#show-details-page .header .wrapper .backdrop {
+	position: absolute;
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	-webkit-filter: brightness(40%);
+}
+
+#show-details-page .header .wrapper .metadata {
+	width: 40%;
+	margin: 50px;
+	bottom: 0;
+	position: absolute;
+	backdrop-filter: brightness(0);
+}
+
+#show-details-page .header .wrapper .metadata > * {
+	margin-top: 20px;
+}
+
+#show-details-page .header .wrapper .metadata .title {
+	margin-top: 0;
+}
+
+#show-details-page .header .wrapper .metadata .description {
+	height: 74px;
+	text-overflow: ellipsis;
+}
+
+#show-details-page .header .wrapper .watch-now {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+#show-details-page .header .wrapper .details {
+	font-size: 0.7rem;
+}
+
+#show-details-page .header .wrapper .details li {
+	list-style: none;
+	display: inline;
+}
+
+#show-details-page .header .wrapper .details li:not(:last-child):after {
+	margin: 0 10px;
+	content: "\2022";
+}
+
+#show-details-page .content {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr;
+	grid-template-areas: "information synopsis other-media"
+	                     "information episodes episodes";
+}
+
+#show-details-page .episodes {
+	grid-area: episodes;
+}
+
+#show-details-page .synopsis {
+	grid-area: synopsis;
+}
+
+#show-details-page .other-media {
+	grid-area: other-media;
+}
+
+#show-details-page .information {
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: 0.3fr 1.7fr;
+	grid-template-areas: "season-selection"
+	                     "poster";
+	grid-area: information;
+}
+
+#show-details-page .season-selection {
+	grid-area: season-selection;
+}
+
+#show-details-page .poster {
+	grid-area: poster;
+}
+
+#show-details-page .content .title {
+	margin: 0 50px 20px 0;
+	display: flex;
+}
+
+#show-details-page .content .information .title {
+	margin-left: 50px;
+}
+
+#show-details-page .content .information .body {
+	margin: 0 50px;
+}
+
+/*
+#show-details-page .content:first-of-type {
+	margin-top: 50px;
+}
+*/
+
+#show-details-page .content .title::after {
+	content: "";
+	margin-left: 20px;
+	background-color: #26282A;
+	border-radius: 1px;
+	height: 3px;
+	flex: 1;
+	align-self: center;
+}
+
+
+
+#show-details-page .content div.poster .poster {
+	border-radius: 5px;
+	width: 222px;
+	height: 316px;
+	margin-top: 10%;
+	margin-left: 10%;
+}
