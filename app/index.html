@@ -11,6 +11,7 @@
 	<link rel="stylesheet" href="./assets/css/font-awesome-5-pro.all.min.css">
 	<link rel="stylesheet" href="./assets/css/loader.css">
 	<link rel="stylesheet" href="./assets/css/scrollbar.css">
+	<link rel="stylesheet" href="./assets/css/dropdown.css">
 	<link rel="stylesheet" href="./assets/css/plyr.min.css">
 	<link rel="stylesheet" href="./assets/css/player.css">
 	<link rel="stylesheet" href="./assets/css/overlays/overlay.css">
@@ -29,6 +30,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 	<script async defer src="./assets/js/plyr.min.js"></script>
 	<script async defer src="./assets/js/index.js"></script>
+	<script async defer src="./assets/js/dropdown.js"></script>
 	<script async defer src="./assets/js/ipc.js"></script>
 	<script async defer src="./assets/js/search.js"></script>
 	<script async defer src="./assets/js/player.js"></script>
@@ -207,15 +209,20 @@
 				<div class="content">
 					<div class="information">
 						<div class="season-selection">
-							<div class="season-dropdown">
-								<div class="filter-select">
-									<div class="filter-value" data-option-index="0"></div>
-									<div class="filter-arrow"><i class="fal fa-chevron-down"></i></div>
+							<div class="dropdown">
+								<div class="dropdown-select">
+									<div class="dropdown-value" data-option-index="0"></div>
+									<div class="dropdown-arrow"><i class="fal fa-chevron-down"></i></div>
 								</div>
-								<div class="filter-options">
-									<span class="option selected" data-index="0" data-value="all">Movies/TV Shows</span>
-									<span class="option" data-index="1" data-value="movie">Movies</span>
-									<span class="option" data-index="2" data-value="show">Shows</span>
+								<div class="dropdown-options">
+									<span class="option selected" data-index="0" data-value="1">Season 1</span>
+									<span class="option" data-index="1" data-value="2">Season 2</span>
+									<span class="option" data-index="2" data-value="3">Season 3</span>
+									<span class="option" data-index="2" data-value="4">Season 4</span>
+									<span class="option" data-index="2" data-value="5">Season 5</span>
+									<span class="option" data-index="2" data-value="6">Season 6</span>
+									<span class="option" data-index="2" data-value="7">Season 7</span>
+									<span class="option" data-index="2" data-value="8">Season 8</span>
 								</div>
 							</div>
 						</div>
@@ -228,11 +235,11 @@
 						<div class="body"></div>
 					</div>
 					<div class="other-media">
-						<h3 class="title">Synopsis</h3>
+						<h3 class="title">Related</h3>
 						<div class="body"></div>
 					</div>
 					<div class="episodes">
-						<h3 class="title">Synopsis</h3>
+						<h3 class="title">Episodes</h3>
 						<div class="body"></div>
 					</div>
 				</div>
@@ -279,12 +286,12 @@
 						<input type="text" id="search-input" placeholder="Search...">
 					</div>
 					<div id="search-filters">
-						<div class="search-filter" data-type="list" data-filter="content-type">
-							<div class="filter-select">
-								<div class="filter-value" data-option-index="0"></div>
-								<div class="filter-arrow"><i class="fal fa-chevron-down"></i></div>
+						<div class="dropdown" data-onchange="searchMedia" data-type="list" data-filter="content-type">
+							<div class="dropdown-select">
+								<div class="dropdown-value" data-option-index="0"></div>
+								<div class="dropdown-arrow"><i class="fal fa-chevron-down"></i></div>
 							</div>
-							<div class="filter-options">
+							<div class="dropdown-options">
 								<span class="option selected" data-index="0" data-value="all">All</span>
 								<span class="option" data-index="1" data-value="movie">Movies</span>
 								<span class="option" data-index="2" data-value="show">Shows</span>

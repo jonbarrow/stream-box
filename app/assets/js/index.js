@@ -1,7 +1,5 @@
 /* eslint-env browser */
 
-/* global searchMedia */
-
 const imageCache = require('image-cache');
 
 // Misc globals

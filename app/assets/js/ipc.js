@@ -64,9 +64,9 @@ function searchMedia() {
 		return;
 	}
 
-	const filters = [...document.querySelectorAll('.search-filter')]
+	const filters = [...document.querySelectorAll('#search-filters .dropdown')]
 		.map(filter => {
-			const optionIndex = filter.querySelector('.filter-value').dataset.optionIndex;
+			const optionIndex = filter.querySelector('.dropdown-value').dataset.optionIndex;
 			return {
 				type: filter.dataset.filter,
 				value: filter.querySelector(`[data-index="${optionIndex}"]`).dataset.value

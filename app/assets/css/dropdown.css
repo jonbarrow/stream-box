@@ -1,0 +1,74 @@
+
+.dropdown {
+	user-select: none;
+	display: inline-block;
+	font-size: 20px;
+}
+
+.dropdown .dropdown-select {
+	cursor: pointer;
+	border: solid #2f3640 1px;
+	border-radius: 10px;
+	margin-top: 15px;
+	padding: 10px 20px;
+}
+
+.dropdown .dropdown-select div {
+	display: inline-block;
+}
+
+.dropdown .dropdown-arrow {
+	transition: all 100ms linear;
+	margin-left: 10px;
+}
+
+.dropdown.opened .dropdown-arrow {
+	transform: rotate(180deg);
+}
+
+.dropdown .dropdown-options {
+	visibility: hidden;
+	position: absolute;
+	margin-top: 15px;
+	background: #2f3640;
+	border-radius: 10px;
+}
+
+.dropdown.opened .dropdown-options {
+	visibility: visible;
+	cursor: pointer;
+}
+
+.dropdown .dropdown-options .option {
+	padding: 5px;
+	display: block;
+}
+
+.dropdown .dropdown-options .option.selected {
+	background: #2a3039;
+}
+
+.dropdown .dropdown-options .option:last-child {
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+}
+
+.dropdown .dropdown-options .option:first-child {
+	border-top-right-radius: 10px;
+	border-top-left-radius: 10px;
+}
+
+.dropdown .dropdown-options:after {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(47, 54, 64, 0);
+	border-bottom-color: #2f3640;
+	border-width: 10px;
+	margin-left: -10px;
+}
