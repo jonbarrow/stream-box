@@ -13,7 +13,7 @@ class IMDBClient {
 		this.session = null;
 	}
 
-	async _temporaryCredentials() {
+	async temporaryCredentials() {
 		const {body} = await got.post(API_TEMP_CREDS, {
 			json: true,
 			body: {
@@ -27,7 +27,7 @@ class IMDBClient {
 	async _validateCredentials() {
 		// Also needs to check expire time
 		if (!this.session) {
-			await this._temporaryCredentials();
+			await this.temporaryCredentials();
 		}
 	}
 

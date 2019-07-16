@@ -23,7 +23,7 @@
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	-webkit-filter: brightness(40%);
+	filter: brightness(40%);
 }
 
 .carousel-item .metadata {

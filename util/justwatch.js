@@ -6,6 +6,7 @@ const API_SEARCH = `${API_BASE}/content/titles/en_US/popular`;
 const API_POPULAR = `${API_BASE}/content/titles/en_US/popular`;
 const API_MOVIE_DETAILS = `${API_BASE}/content/titles/movie/{id}/locale/en_US`;
 const API_SHOW_DETAILS = `${API_BASE}/content/titles/show/{id}/locale/en_US`;
+const API_SEASON_DETAILS = `${API_BASE}/content/titles/show_season/{id}/locale/en_US`;
 const API_RECOMMENDATIONS = `${API_BASE}/content/titles/en_US/recommendations`;
 
 async function getPopularMovies(page=1) {
@@ -96,6 +97,14 @@ async function showDetails(id) {
 	return response.body;
 }
 
+async function seasonDetails(id) {
+	const response = await got(API_SEASON_DETAILS.replace('{id}', id), {
+		json: true
+	});
+	
+	return response.body;
+}
+
 async function relatedMedia(id, type) {
 	let prefix = 't';
 
@@ -128,6 +137,7 @@ module.exports = {
 	searchShows,
 	movieDetails,
 	showDetails,
+	seasonDetails,
 	relatedMedia
 };
 

@@ -24,6 +24,19 @@ const MOVIE_DETAILS_PAGE_CAST = MOVIE_DETAILS_PAGE.querySelector('.content .info
 const MOVIE_DETAILS_PAGE_VIDEOS = MOVIE_DETAILS_PAGE.querySelector('.content .other-media .videos .body');
 const MOVIE_DETAILS_PAGE_RELATED = MOVIE_DETAILS_PAGE.querySelector('.content .other-media .related .body');
 
+// Show Details page globals
+const SHOW_DETAILS_PAGE = document.getElementById('show-details-page');
+const SHOW_DETAILS_PAGE_BACKDROP = SHOW_DETAILS_PAGE.querySelector('.header .wrapper .backdrop');
+const SHOW_DETAILS_PAGE_TITLE = SHOW_DETAILS_PAGE.querySelector('.header .wrapper .metadata .title');
+const SHOW_DETAILS_PAGE_AGE_RATING = SHOW_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .age-rating');
+const SHOW_DETAILS_PAGE_GENRES = SHOW_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .genres');
+const SHOW_DETAILS_PAGE_RELEASE_YEAR = SHOW_DETAILS_PAGE.querySelector('.header .wrapper .metadata .details .release-year');
+const SHOW_DETAILS_PAGE_POSTER = SHOW_DETAILS_PAGE.querySelector('.content img.poster');
+const SHOW_DETAILS_PAGE_SYNOPSIS = SHOW_DETAILS_PAGE.querySelector('.content .synopsis .body');
+const SHOW_DETAILS_PAGE_RELATED = SHOW_DETAILS_PAGE.querySelector('.content .related .body');
+const SHOW_DETAILS_PAGE_EPISODES = SHOW_DETAILS_PAGE.querySelector('.content .episodes .body');
+const SHOW_DETAILS_PAGE_SEASON_SELECTION = SHOW_DETAILS_PAGE.querySelector('.content .season-selection');
+
 // Home page globals
 const HOME_CAROUSEL_LIST = document.querySelector('#home-page .carousel');
 const HOME_MOVIE_LIST = document.querySelector('#home-page-popular-movies .body');
@@ -81,6 +94,10 @@ function loadHomePage() {
 
 function loadMovieDetailsPage() {
 	loadPage('movie-details-page');
+}
+
+function loadShowDetailsPage() {
+	loadPage('show-details-page');
 }
 
 function showOverlay(id) {
@@ -141,6 +158,16 @@ for (let i = 0; i < toggle.length; i++) {
 	this.MOVIE_DETAILS_PAGE_CAST = MOVIE_DETAILS_PAGE_CAST;
 	this.MOVIE_DETAILS_PAGE_VIDEOS = MOVIE_DETAILS_PAGE_VIDEOS;
 	this.MOVIE_DETAILS_PAGE_RELATED = MOVIE_DETAILS_PAGE_RELATED;
+	this.SHOW_DETAILS_PAGE_BACKDROP = SHOW_DETAILS_PAGE_BACKDROP;
+	this.SHOW_DETAILS_PAGE_TITLE = SHOW_DETAILS_PAGE_TITLE;
+	this.SHOW_DETAILS_PAGE_AGE_RATING = SHOW_DETAILS_PAGE_AGE_RATING;
+	this.SHOW_DETAILS_PAGE_GENRES = SHOW_DETAILS_PAGE_GENRES;
+	this.SHOW_DETAILS_PAGE_RELEASE_YEAR = SHOW_DETAILS_PAGE_RELEASE_YEAR;
+	this.SHOW_DETAILS_PAGE_POSTER = SHOW_DETAILS_PAGE_POSTER;
+	this.SHOW_DETAILS_PAGE_SYNOPSIS = SHOW_DETAILS_PAGE_SYNOPSIS;
+	this.SHOW_DETAILS_PAGE_RELATED = SHOW_DETAILS_PAGE_RELATED;
+	this.SHOW_DETAILS_PAGE_EPISODES = SHOW_DETAILS_PAGE_EPISODES;
+	this.SHOW_DETAILS_PAGE_SEASON_SELECTION = SHOW_DETAILS_PAGE_SEASON_SELECTION;
 	this.HOME_CAROUSEL_LIST = HOME_CAROUSEL_LIST;
 	this.HOME_MOVIE_LIST = HOME_MOVIE_LIST;
 	this.HOME_TVSHOW_LIST = HOME_TVSHOW_LIST;
@@ -152,6 +179,7 @@ for (let i = 0; i < toggle.length; i++) {
 	this.loadPage = loadPage;
 	this.loadHomePage = loadHomePage;
 	this.loadMovieDetailsPage = loadMovieDetailsPage;
+	this.loadShowDetailsPage = loadShowDetailsPage;
 	this.hideLoader = hideLoader;
 	this.showLoader = showLoader;
 	this.disallowBodyScroll = disallowBodyScroll;

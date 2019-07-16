@@ -24,6 +24,7 @@
 		"image-cache": "^1.0.1",
 		"jsdom": "^15.0.0",
 		"json5": "^2.1.0",
+		"lowdb": "^1.0.0",
 		"parse-domain": "^2.3.1"
 	}
 }

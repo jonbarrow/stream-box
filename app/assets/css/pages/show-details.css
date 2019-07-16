@@ -1,6 +1,7 @@
 #show-details-page .header {
 	height: 30vh;
 	color: #E0E2E6;
+	margin-bottom: 20px;
 }
 
 #show-details-page .content {
@@ -24,11 +25,11 @@
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	-webkit-filter: brightness(40%);
+	filter: brightness(40%);
 }
 
 #show-details-page .header .wrapper .metadata {
-	width: 40%;
+	width: 50%;
 	margin: 50px;
 	bottom: 0;
 	position: absolute;
@@ -71,9 +72,9 @@
 
 #show-details-page .content {
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-columns: 0.5fr 1.5fr minmax(0, 1fr);
 	grid-template-rows: 1fr 1fr;
-	grid-template-areas: "information synopsis other-media"
+	grid-template-areas: "information synopsis related"
 	                     "information episodes episodes";
 }
 
@@ -85,8 +86,8 @@
 	grid-area: synopsis;
 }
 
-#show-details-page .other-media {
-	grid-area: other-media;
+#show-details-page .related {
+	grid-area: related;
 }
 
 #show-details-page .information {
@@ -102,12 +103,12 @@
 	grid-area: season-selection;
 }
 
-#show-details-page .poster {
+#show-details-page .content div.poster .poster {
 	grid-area: poster;
 }
 
-#show-details-page .content .title {
-	margin: 0 50px 20px 0;
+#show-details-page .content h3.title {
+	margin: 10px 50px 20px 0;
 	display: flex;
 }
 
@@ -119,13 +120,7 @@
 	margin: 0 50px;
 }
 
-/*
-#show-details-page .content:first-of-type {
-	margin-top: 50px;
-}
-*/
-
-#show-details-page .content .title::after {
+#show-details-page .content h3.title::after {
 	content: "";
 	margin-left: 20px;
 	background-color: #26282A;
@@ -135,12 +130,82 @@
 	align-self: center;
 }
 
-
+#show-details-page .content .season-selection .dropdown {
+	width: 222px;
+	margin-left: 50%;
+	transform: translateX(-50%);
+}
 
 #show-details-page .content div.poster .poster {
+	position: relative;
+	z-index: -1;
 	border-radius: 5px;
 	width: 222px;
 	height: 316px;
-	margin-top: 10%;
-	margin-left: 10%;
+	margin-left: 50%;
+	transform: translateX(-50%);
+}
+
+#show-details-page .content .episodes .body {
+	display: block;
+	overflow-x: auto;
+	overflow-y: hidden;
+	white-space: nowrap;
+}
+
+#show-details-page .content .episodes .episode {
+	width: 200px;
+	height: 150px;
+
+	margin-right: 10px;
+
+	position: relative;
+	display: inline-block;
+	border-radius: 10px;
+	background: #313238;
+
+	cursor: pointer;
+}
+
+#show-details-page .content .episodes .episode .screenshot {
+	width: 200px;
+	height: 150px;
+
+	overflow: hidden;
+	border-radius: 10px;
+}
+
+#show-details-page .content .episodes .episode .title {
+	position: absolute;
+	width: 100%;
+	height: 40px;
+	left: 0;
+	bottom: 0;
+	background: rgba(21, 22, 26, 0.7);
+
+	padding-left: 10px;
+	display: flex;
+	align-items: center;
+}
+
+#show-details-page .content .related .body {
+	display: block;
+	overflow-x: auto;
+	overflow-y: hidden;
+	white-space: nowrap;
+}
+
+#show-details-page .content .related .body .media {
+	display: inline-block;
+	border-radius: 5px;
+	width: 111px;
+	height: 158px;
+	margin: 0 5px;
+}
+
+#show-details-page .content .related .body .media .poster {
+	overflow: hidden;
+	width: 111px;
+	height: 158px;
+	border-radius: 5px;
 }

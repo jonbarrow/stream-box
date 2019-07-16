@@ -18,6 +18,7 @@
 }
 
 .dropdown .dropdown-arrow {
+	float: right;
 	transition: all 100ms linear;
 	margin-left: 10px;
 }
@@ -40,7 +41,7 @@
 }
 
 .dropdown .dropdown-options .option {
-	padding: 5px;
+	padding: 10px 20px;
 	display: block;
 }
 

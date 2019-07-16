@@ -24,11 +24,11 @@
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	-webkit-filter: brightness(40%);
+	filter: brightness(40%);
 }
 
 #movie-details-page .wrapper .metadata {
-	width: 40%;
+	width: 50%;
 	margin: 50px;
 	bottom: 0;
 	position: absolute;
@@ -100,7 +100,8 @@
 	display: grid;
 	grid-template-columns: 0.5fr 1.5fr 1fr;
 	grid-template-rows: 1fr 1fr;
-	grid-template-areas: "poster information other-media" "poster information other-media";
+	grid-template-areas: "poster information other-media"
+	                     "poster information other-media";
 }
 
 #movie-details-page .content div.poster {
@@ -111,7 +112,8 @@
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	grid-template-rows: 1fr 1fr;
-	grid-template-areas: "synopsis synopsis synopsis" "cast	 cast	cast";
+	grid-template-areas: "synopsis synopsis synopsis"
+	                     "cast     cast     cast";
 	grid-area: information;
 }
 
@@ -127,7 +129,8 @@
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	grid-template-rows: 1fr 1fr;
-	grid-template-areas: "videos  videos  videos" "related related related";
+	grid-template-areas: "videos  videos  videos"
+	                     "related related related";
 	grid-area: other-media;
 }
 

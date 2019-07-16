@@ -3,10 +3,11 @@ process.on('unhandledRejection', (reason, p) => {
 });
 
 const { BrowserWindow, app, ipcMain } = require('electron');
-const fs = require('fs-extra');
 const path = require('path');
 const url = require('url');
 const childProcess = require('child_process');
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
 const { trakt, tmdb, justwatch } = require('./util');
 const IMDBClient = require('./util/imdb');
 const imdb = new IMDBClient();
@@ -19,7 +20,7 @@ if (isDev()) {
 	LOCAL_RESOURCES_ROOT = `${__dirname}/../`;
 }
 
-const DATA_ROOT = app.getPath('userData').replace(/\\/g, '/') + '/app_data';
+const DATA_ROOT = app.getPath('userData').replace(/\\/g, '/');
 const JUSTWATCH_GENRES = [
 	'Action & Adventure',
 	'Animation',
@@ -40,6 +41,7 @@ const JUSTWATCH_GENRES = [
 	'Western'
 ];
 
+const seriesDataStorage = low(new FileSync(`${DATA_ROOT}/series-data.json`));
 let ApplicationWindow;
 
 app.on('window-all-closed', () => {
@@ -102,15 +104,10 @@ ipcMain.on('ready', async event => {
 	event.sender.send('update-home-popular-tvshows', popularTVShows);
 });
 
-ipcMain.on('load-media-details', async(event, { id, type }) => {
-	let details;
-	if (type === 'show') {
-		details = await justwatch.showDetails(id);
-	} else {
-		details = await justwatch.movieDetails(id);
-	}
+ipcMain.on('load-movie-details', async(event, id) => {
+	const details = await justwatch.movieDetails(id);
 	
-	const related = await justwatch.relatedMedia(id, type);
+	const related = await justwatch.relatedMedia(id, 'movie');
 
 	const imdbId = (details.external_ids.find(id => id.provider === 'imdb')).external_id;
 
@@ -125,7 +122,7 @@ ipcMain.on('load-media-details', async(event, { id, type }) => {
 			return metadata;
 		});
 
-	event.sender.send('update-media-details', {
+	event.sender.send('update-movie-details', {
 		id,
 		imdb_id: imdbId,
 		media_type: details.object_type,
@@ -141,6 +138,81 @@ ipcMain.on('load-media-details', async(event, { id, type }) => {
 		images: {
 			backdrop: `https://images.justwatch.com${details.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
 			poster: `https://images.justwatch.com${details.poster.replace('{profile}', 's592')}`
+		}
+	});
+});
+
+ipcMain.on('load-show-details', async(event, {id, init}) => {
+	let seasonDetails;
+	let showDetails;
+
+	if (init) {
+		showDetails = await justwatch.showDetails(id);
+		seasonDetails = await justwatch.seasonDetails(showDetails.seasons[0].id);
+	} else {
+		seasonDetails = await justwatch.seasonDetails(id);
+		showDetails = await justwatch.showDetails(seasonDetails.show_id);
+	}
+
+	const imdbId = (showDetails.external_ids.find(id => id.provider === 'imdb')).external_id;
+	const lastWatched = seriesDataStorage.get(imdbId).toJSON();
+	let lastWatchedData;
+
+	if (!lastWatched) {
+		lastWatchedData = {
+			last_watched: {
+				season: 1,
+				episode: 1
+			}
+		};
+
+		seriesDataStorage.set(imdbId, lastWatchedData).write();
+	} else {
+		lastWatchedData = lastWatched;
+	}
+
+	if (init) {
+		const currentSeason = showDetails.seasons.find(({season_number}) => season_number === lastWatchedData.last_watched.season);
+
+		seasonDetails = await justwatch.seasonDetails(currentSeason.id);
+	} else {
+		const oldData = seriesDataStorage.get(imdbId).toJSON();
+		oldData.last_watched.season = seasonDetails.season_number;
+
+		seriesDataStorage.get(imdbId).assign(oldData).write();
+	}
+	
+
+	const episodeData = await imdb.episodes(imdbId);
+
+	const seasons = episodeData.seasons.filter(({season}) => season);
+	const season = seasons.find(({season}) => season === seasonDetails.season_number);
+
+	const episodes = await Promise.all(season.episodes.map(async episode => ({
+		number: episode.episode,
+		season: episode.season,
+		title: episode.title,
+		screenshot: (await imdb._apiRequest(episode.id)).resource.image
+	})));
+
+	const related = await justwatch.relatedMedia(showDetails.id, 'show');
+
+	event.sender.send('update-show-details', {
+		id,
+		imdb_id: imdbId,
+		media_type: 'show',
+		title: seasonDetails.title,
+		age_rating: seasonDetails.age_certification || 'Not Rated',
+		genres: seasonDetails.genre_ids.map(id => JUSTWATCH_GENRES[id - 1]),
+		release_year: seasonDetails.original_release_year,
+		synopsis: seasonDetails.short_description,
+		season: seasonDetails.season_number,
+		seasons: showDetails.seasons,
+		episodes,
+		related_media: related,
+		images: {
+			backdrop: `https://images.justwatch.com${showDetails.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
+			poster: `https://images.justwatch.com${seasonDetails.poster.replace('{profile}', 's592')}`
 		}
 	});
 });
@@ -190,14 +262,9 @@ ipcMain.on('scrape-streams', async(event, { id, season, episode }) => {
 });
 
 async function initialize() {
-	fs.ensureDirSync(`${DATA_ROOT}/cache/images`);
-	fs.ensureDirSync(`${DATA_ROOT}/cache/json`);
+	await imdb.temporaryCredentials();
 
-	if (!fs.existsSync(`${DATA_ROOT}/cache/json/settings.json`)) {
-		fs.writeFileSync(`${DATA_ROOT}/cache/json/settings.json`, JSON.stringify({}));
-	}
-
-	return new Promise(resolve => resolve());
+	seriesDataStorage.defaults({}).write();
 }
 
 // https://github.com/electron/electron/issues/7714#issuecomment-255835799
