@@ -3,6 +3,7 @@ process.on('unhandledRejection', (reason, p) => {
 });
 
 const { BrowserWindow, app, ipcMain } = require('electron');
+const got = require('got');
 const path = require('path');
 const url = require('url');
 const childProcess = require('child_process');
@@ -155,6 +156,7 @@ ipcMain.on('load-show-details', async(event, {id, init}) => {
 	}
 
 	const imdbId = (showDetails.external_ids.find(id => id.provider === 'imdb')).external_id;
+	const tmdbId = (showDetails.external_ids.find(id => id.provider === 'tmdb')).external_id;
 	const lastWatched = seriesDataStorage.get(imdbId).toJSON();
 	let lastWatchedData;
 
@@ -181,9 +183,11 @@ ipcMain.on('load-show-details', async(event, {id, init}) => {
 
 		seriesDataStorage.get(imdbId).assign(oldData).write();
 	}
-	
 
-	const episodeData = await imdb.episodes(imdbId);
+	/*const episodeData = await imdb.episodes(imdbId);
+
+	console.log(episodeData.seasons);
+	console.log(seasonDetails.season_number);
 
 	const seasons = episodeData.seasons.filter(({season}) => season);
 	const season = seasons.find(({season}) => season === seasonDetails.season_number);
@@ -191,9 +195,31 @@ ipcMain.on('load-show-details', async(event, {id, init}) => {
 	const episodes = await Promise.all(season.episodes.map(async episode => ({
 		number: episode.episode,
 		season: episode.season,
-		title: episode.title,
+		title: seasonDetails.episodes[episode.episode-1].title,
 		screenshot: (await imdb._apiRequest(episode.id)).resource.image
-	})));
+	})));*/
+
+	const episodes = seasonDetails.episodes.map(({title, episode_number}) => ({
+		title,
+		episode_number
+	}));
+
+	const extendedEpisodeData = await got.post('https://www.captainwatch.com/tvapi/episodes', {
+		throwHttpErrors: false,
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+		},
+		body: `movieId=${tmdbId}&seasonNumber=${seasonDetails.season_number}`
+	}).then(({body, statusCode}) => (statusCode === 200 ? JSON.parse(body) : {}));
+
+	if (extendedEpisodeData.episodes) {
+		for (const episode of episodes) {
+			const extended = extendedEpisodeData.episodes.find(({episode_number}) => episode_number === episode.episode_number);
+			if (extended && extended.still) {
+				episode.screenshot = extended.still;
+			}
+		}
+	}
 
 	const related = await justwatch.relatedMedia(showDetails.id, 'show');
 
@@ -201,11 +227,12 @@ ipcMain.on('load-show-details', async(event, {id, init}) => {
 		id,
 		imdb_id: imdbId,
 		media_type: 'show',
-		title: seasonDetails.title,
+		title: showDetails.title,
+		season_title: seasonDetails.title,
 		age_rating: seasonDetails.age_certification || 'Not Rated',
 		genres: seasonDetails.genre_ids.map(id => JUSTWATCH_GENRES[id - 1]),
 		release_year: seasonDetails.original_release_year,
-		synopsis: seasonDetails.short_description,
+		synopsis: seasonDetails.short_description || showDetails.short_description,
 		season: seasonDetails.season_number,
 		seasons: showDetails.seasons,
 		episodes,

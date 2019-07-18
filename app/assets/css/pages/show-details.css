@@ -136,6 +136,10 @@
 	transform: translateX(-50%);
 }
 
+#show-details-page .content .season-selection .dropdown .dropdown-options {
+	width: 222px;
+}
+
 #show-details-page .content div.poster .poster {
 	position: relative;
 	z-index: -1;
@@ -154,8 +158,8 @@
 }
 
 #show-details-page .content .episodes .episode {
-	width: 200px;
-	height: 150px;
+	width: 300px;
+	height: 169px;
 
 	margin-right: 10px;
 
@@ -168,8 +172,8 @@
 }
 
 #show-details-page .content .episodes .episode .screenshot {
-	width: 200px;
-	height: 150px;
+	width: 100%;
+	height: auto;
 
 	overflow: hidden;
 	border-radius: 10px;

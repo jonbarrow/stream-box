@@ -45,7 +45,6 @@ const HOME_TVSHOW_LIST = document.querySelector('#home-page-popular-tvshows .bod
 // Search page globals
 const SEARCH_PAGE = document.getElementById('search-page');
 const SEARCH_PAGE_SEARCH_INPUT= SEARCH_PAGE.querySelector('#search-input');
-const SEARCH_PAGE_SEARCH_QUERY = SEARCH_PAGE.querySelector('.query');
 const SEARCH_PAGE_MEDIA_LIST = SEARCH_PAGE.querySelector('.list');
 
 function addEvent(object, event, func) {
@@ -86,6 +85,10 @@ function loadPage(id) {
 
 	CURRENT_LOADED_PAGE = id;
 	document.getElementById(id).classList.add('active');
+
+	if (id === 'search-page') {
+		SEARCH_PAGE_SEARCH_INPUT.focus();
+	}
 }
 
 function loadHomePage() {
@@ -173,7 +176,6 @@ for (let i = 0; i < toggle.length; i++) {
 	this.HOME_TVSHOW_LIST = HOME_TVSHOW_LIST;
 	this.SEARCH_PAGE_SEARCH_INPUT = SEARCH_PAGE_SEARCH_INPUT;
 	this.SEARCH_PAGE_MEDIA_LIST = SEARCH_PAGE_MEDIA_LIST;
-	this.SEARCH_PAGE_SEARCH_QUERY = SEARCH_PAGE_SEARCH_QUERY;
 
 	this.cachedImageUrl = cachedImageUrl;
 	this.loadPage = loadPage;

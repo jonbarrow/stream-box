@@ -46,7 +46,7 @@ async function scrapeEmbed(embed) {
 				for (const stream of streamango) {
 					streams.push({
 						file_host: 'StreaMango',
-						file: stream.source,
+						file: (stream.source.startsWith('//') ? `https:${stream.source}` : stream.source),
 						quality: stream.quality
 					});
 				}

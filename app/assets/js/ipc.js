@@ -328,13 +328,14 @@ ipcRenderer.on('update-show-details', (event, data) => {
 		const title = template.querySelector('.title');
 
 		if (episode.screenshot) {
-			screenshot.src = cachedImageUrl(episode.screenshot.url);
+			screenshot.src = cachedImageUrl(episode.screenshot);
 		}
 
-		title.innerHTML = `E${episode.number} ${episode.title}`;
+		title.innerHTML = `E${episode.episode_number} ${episode.title}`;
 
 		addEvent(template, 'click', () => {
-			alert('Scrape episode' + episode.number);
+			showLoader();
+			scrapeStreams(data.imdb_id, data.season, episode.episode_number);
 		});
 
 		SHOW_DETAILS_PAGE_EPISODES.appendChild(template);

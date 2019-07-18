@@ -47,6 +47,7 @@
 	align-items: center;
 	grid-template-columns: repeat(auto-fit, 132px);
 	grid-gap: 25px;
+	margin-bottom: 25px;
 }
 
 #search-page .content .list .media {
