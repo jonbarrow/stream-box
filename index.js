@@ -2,11 +2,11 @@ process.on('unhandledRejection', (reason, p) => {
 	console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
 });
 
-const { BrowserWindow, app, ipcMain } = require('electron');
+const { BrowserWindow, app, ipcMain, globalShortcut } = require('electron');
 const got = require('got');
 const path = require('path');
 const url = require('url');
-const childProcess = require('child_process');
+const BackgroundTask = require('./background_task');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const { trakt, tmdb, justwatch } = require('./util');
@@ -52,6 +52,13 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', () => {
+	globalShortcut.register('MediaPlayPause', () => {
+		ApplicationWindow.webContents.sendInputEvent({
+			type: 'keyDown',
+			keyCode: 'MediaPlayPause'
+		});
+	});
+	
 	ApplicationWindow = new BrowserWindow({
 		title: 'Stream Box',
 		icon: `${LOCAL_RESOURCES_ROOT}/icon.ico`,
@@ -66,6 +73,7 @@ app.on('ready', () => {
 	if (!isDev()) {
 		ApplicationWindow.setMenu(null);
 	}
+
 	ApplicationWindow.maximize();
 
 	ApplicationWindow.webContents.on('did-finish-load', () => {
@@ -86,7 +94,7 @@ app.on('ready', () => {
 
 ipcMain.on('initialize', async event => {
 	event.sender.send('initializing');
-	await initialize();
+	await initialize(event);
 	event.sender.send('initialized');
 });
 
@@ -95,12 +103,15 @@ ipcMain.on('ready', async event => {
 	const popularMovies = await justwatch.getPopularMovies();
 	const popularTVShows = await justwatch.getPopularTVShows();
 
-	trendingMovies = await Promise.all(trendingMovies.map(async({ movie }) => {
-		movie.images = await tmdb.movieImages(movie.ids.imdb);
-		return movie;
-	}));
+	if (trendingMovies) {
+		trendingMovies = await Promise.all(trendingMovies.map(async({ movie }) => {
+			movie.images = await tmdb.movieImages(movie.ids.imdb);
+			return movie;
+		}));
 
-	event.sender.send('update-home-carousel', trendingMovies);
+		event.sender.send('update-home-carousel', trendingMovies);
+	}
+
 	event.sender.send('update-home-popular-movies', popularMovies);
 	event.sender.send('update-home-popular-tvshows', popularTVShows);
 });
@@ -263,27 +274,26 @@ ipcMain.on('search-media', async(event, {search_query, filters}) => {
 });
 
 ipcMain.on('scrape-streams', async(event, { id, season, episode }) => {
-	// Using a child process here so that I can kill the entire scraping procress at once
-	// This way any lingering requests or processing can all be killed at one time with no checks
 	if (SCRAPE_PROCESS) {
 		SCRAPE_PROCESS.kill();
 	}
 
-	const _arguments = [id, season, episode].filter(val => val);
+	SCRAPE_PROCESS = new BackgroundTask(`${__dirname}/background/scrape.html`);
 
-	SCRAPE_PROCESS = childProcess.fork('./scrape.js', _arguments, {
-		stdio: 'ignore'
+	SCRAPE_PROCESS.on('ERROR', console.error);
+
+	SCRAPE_PROCESS.on('ready', () => {
+		SCRAPE_PROCESS.send('scrape', {id, season, episode});
 	});
 
-	SCRAPE_PROCESS.on('message', message => {
-		if (message.event === 'stream') {
-			event.sender.send('stream', message.data);
-		} else if (message.event === 'finished') {
-			if (!SCRAPE_PROCESS.killed) {
-				SCRAPE_PROCESS.kill();
-			}
-		} else {
-			throw new Error ('Unknown scrape process event', message.event);
+	SCRAPE_PROCESS.on('stream', stream => {
+		console.log(stream);
+		event.sender.send('stream', stream);
+	});
+
+	SCRAPE_PROCESS.on('finished', () => {
+		if (!SCRAPE_PROCESS.killed) {
+			SCRAPE_PROCESS.kill();
 		}
 	});
 });

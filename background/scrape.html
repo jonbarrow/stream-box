@@ -1,0 +1,22 @@
+<html>
+	<script>
+		/* eslint-env browser */
+
+		const { ipcRenderer } = require('electron');
+		const VideoMediaScraper = require('../scrapers/video-media');
+
+		ipcRenderer.on('scrape', (event, {id, season, episode}) => {
+			const scraper = new VideoMediaScraper();
+			scraper.scrape(id, season, episode);
+
+			scraper.on('stream', stream => {
+				event.sender.send('stream', stream);
+			});
+
+			scraper.on('finished', () => {
+				event.sender.send('finished');
+			});
+		});
+		
+	</script>
+</html>

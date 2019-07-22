@@ -1,5 +1,15 @@
 /* eslint-env browser */
 
+/* 
+	global
+		isPi
+		omxplayer
+		player
+		omxplayerKeyHandle
+		plyrKeyHandle
+		navigationKeyHandle
+*/
+
 const imageCache = require('image-cache');
 
 // Misc globals
@@ -51,19 +61,23 @@ function addEvent(object, event, func) {
 	object.addEventListener(event, func, true);
 }
 
-function cachedImageUrl(url) {
-	if (imageCache.isCachedSync(url)) {
-		const cachedPosterSrc = imageCache.getCacheSync(url);
-		return cachedPosterSrc.data;
-	} else {
+async function cachedImageUrl(url) {
+	if (!imageCache.isCachedSync(url)) {
 		// image-cache doesn't have a sync version of this method
-		imageCache.setCache(url, () => {});
+		await new Promise(resolve => {
+			imageCache.setCache(url, resolve);
+		});
 	}
 
-	return url;
+	const cachedPosterSrc = imageCache.getCacheSync(url);
+	return cachedPosterSrc.data;
 }
 
 function loadPage(id) {
+	if (id === 'favorites-page') {
+		return alert('Coming soon');
+	}
+
 	hideOverlays();
 
 	const currentActivePage = document.querySelector('.page.active');
@@ -72,12 +86,13 @@ function loadPage(id) {
 	}
 
 	const selectedNavigation = document.querySelector('.navigation-item.selected');
+	let newSelecedtNav;
 	if (!selectedNavigation || id !== selectedNavigation.dataset.navigation) {
 		if (selectedNavigation) {
 			selectedNavigation.classList.remove('selected');
 		}
 	
-		const newSelecedtNav = document.querySelector(`[data-navigation="${id}"]`);
+		newSelecedtNav = document.querySelector(`[data-navigation="${id}"]`);
 		if (newSelecedtNav) {
 			newSelecedtNav.classList.add('selected');
 		}
@@ -86,7 +101,17 @@ function loadPage(id) {
 	CURRENT_LOADED_PAGE = id;
 	document.getElementById(id).classList.add('active');
 
+	if (id === 'home-page') {
+		NAV_ALL.forEach(element => {
+			element.dataset.kbDown = '#home-page-popular-movies .media';
+		});
+	}
+	
 	if (id === 'search-page') {
+		NAV_ALL.forEach(element => {
+			element.dataset.kbDown = '#search-container';
+		});
+
 		SEARCH_PAGE_SEARCH_INPUT.focus();
 	}
 }
@@ -145,6 +170,16 @@ for (let i = 0; i < toggle.length; i++) {
 		} 
 	});
 }
+
+document.addEventListener('keydown', event => {
+	if (isPi() && omxplayer.isPlaying()) {
+		omxplayerKeyHandle(event);
+	} else if (player.playing) {
+		plyrKeyHandle(event);
+	} else {
+		navigationKeyHandle(event);	
+	}
+});
 
 // Get around eslint no-unused-vars, and make 100% sure the variables are global
 !function() {

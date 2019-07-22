@@ -1,4 +1,5 @@
 /* eslint-env browser */
+
 /*
 	global
 		Plyr
@@ -85,7 +86,7 @@ function startStream(stream) {
 	}
 }
 
-function piKeyHandle(event) {
+function omxplayerKeyHandle(event) {
 	if (!omxplayer.isPlaying()) {
 		return;
 	}
@@ -170,7 +171,7 @@ function piKeyHandle(event) {
 	}
 }
 
-function keyHandle(event) {
+function plyrKeyHandle(event) {
 
 	if (player.playing) {
 		event.preventDefault();
@@ -178,24 +179,18 @@ function keyHandle(event) {
 	
 	const {key} = event;
 
-	if (key === 'Escape' && player.playing) {
+	if ((key === 'Escape' || key === 'Home' || key === 'BrowserBack') && player.playing) {
 		hidePlayer();
 	}
 }
 
 // Get around eslint no-unused-vars, and make 100% sure the variables are global
 !function() {
-	document.addEventListener('keydown', event => {
-		if (isPi()) {
-			piKeyHandle(event);
-		} else {
-			keyHandle(event);
-		}
-	});
-
 	this.startStream = startStream;
 	this.showPlayer = showPlayer;
 	this.hidePlayer = hidePlayer;
 	this.playerOpen = playerOpen;
 	this.setPlayerBackground = setPlayerBackground;
+	this.omxplayerKeyHandle = omxplayerKeyHandle;
+	this.plyrKeyHandle = plyrKeyHandle;
 }();

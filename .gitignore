@@ -58,6 +58,7 @@ typings/
 .env
 
 # custom
+dist
 live-tv
 plyr
 ocr.js

@@ -108,14 +108,14 @@ function updateCastListObserver() {
 	castListObserver.observe([...MOVIE_DETAILS_PAGE_CAST.querySelectorAll('img')].pop());
 }
 
-function loadCastListSection() {
+async function loadCastListSection() {
 	const section = currentSelectedMediaCast.slice(currentSelectedMediaCastPosition+1, currentSelectedMediaCastPosition+10);
 
 	for (const castMember of section) {
 		if (castMember.profile) {
 			const img = document.createElement('img');
 			img.classList.add('cast-member');
-			img.src = cachedImageUrl(castMember.profile);
+			img.src = await cachedImageUrl(castMember.profile);
 	
 			MOVIE_DETAILS_PAGE_CAST.appendChild(img);
 		}
@@ -147,7 +147,7 @@ ipcRenderer.on('initialized', () => {
 	ipcRenderer.send('ready');
 });
 
-ipcRenderer.on('update-home-carousel', (event, movies) => {
+ipcRenderer.on('update-home-carousel', async (event, movies) => {
 	HOME_CAROUSEL_LIST.innerHTML = '';
 
 	for (const movie of movies) {
@@ -160,7 +160,7 @@ ipcRenderer.on('update-home-carousel', (event, movies) => {
 		const description = metadata.querySelector('.description');
 		const watchButton = metadata.querySelector('.buttons .watch-now');
 
-		backdrop.src = cachedImageUrl(`https://image.tmdb.org/t/p/original${movie.images.backdrops[0].file_path}`);
+		backdrop.src = await cachedImageUrl(`https://image.tmdb.org/t/p/original${movie.images.backdrops[0].file_path}`);
 		title.innerHTML = movie.title;
 		description.innerHTML = movie.overview;
 
@@ -181,10 +181,12 @@ ipcRenderer.on('update-home-popular-movies', async (event, data) => {
 
 	for (const movie of movies) {
 		const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
+		template.dataset.kbUp ='#top-navigation ol li';
+		template.dataset.kbDown ='#home-page-popular-tvshows .media';
 		
 		const poster = template.querySelector('.poster');
 		if (movie.poster) {
-			poster.src = cachedImageUrl(`https://images.justwatch.com${movie.poster.replace('{profile}', 's166')}`);
+			poster.src = await cachedImageUrl(`https://images.justwatch.com${movie.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		addEvent(template, 'click', () => {
@@ -195,17 +197,18 @@ ipcRenderer.on('update-home-popular-movies', async (event, data) => {
 	}
 });
 
-ipcRenderer.on('update-home-popular-tvshows', (event, data) => {
+ipcRenderer.on('update-home-popular-tvshows', async (event, data) => {
 	HOME_TVSHOW_LIST.innerHTML = '';
 
 	const shows = data.items;
 
 	for (const show of shows) {
 		const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
+		template.dataset.kbUp ='#home-page-popular-movies .media';
 		
 		const poster = template.querySelector('.poster');
 		if (show.poster) {
-			poster.src = cachedImageUrl(`https://images.justwatch.com${show.poster.replace('{profile}', 's166')}`);
+			poster.src = await cachedImageUrl(`https://images.justwatch.com${show.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		addEvent(template, 'click', () => {
@@ -219,21 +222,21 @@ ipcRenderer.on('update-home-popular-tvshows', (event, data) => {
 	allowBodyScroll();
 });
 
-ipcRenderer.on('update-movie-details', (event, data) => {
+ipcRenderer.on('update-movie-details', async (event, data) => {
 	MOVIE_DETAILS_PAGE_WATCH_NOW.onclick = function() {
 		showLoader();
 		scrapeStreams(data.imdb_id);
 	};
 
-	setPlayerBackground(cachedImageUrl(data.images.backdrop));
+	setPlayerBackground(await cachedImageUrl(data.images.backdrop));
 
-	MOVIE_DETAILS_PAGE_BACKDROP.src = cachedImageUrl(data.images.backdrop);
+	MOVIE_DETAILS_PAGE_BACKDROP.src = await cachedImageUrl(data.images.backdrop);
 	MOVIE_DETAILS_PAGE_TITLE.innerHTML = data.title;
 	MOVIE_DETAILS_PAGE_AGE_RATING.innerHTML = data.age_rating;
 	MOVIE_DETAILS_PAGE_RUNTIME.innerHTML = `${Math.floor(data.runtime / 60)}h${data.runtime % 60}m`;
 	MOVIE_DETAILS_PAGE_GENRES.innerHTML = data.genres.join(', ');
 	MOVIE_DETAILS_PAGE_RELEASE_YEAR.innerHTML = data.release_year;
-	MOVIE_DETAILS_PAGE_POSTER.src = cachedImageUrl(data.images.poster);
+	MOVIE_DETAILS_PAGE_POSTER.src = await cachedImageUrl(data.images.poster);
 	MOVIE_DETAILS_PAGE_SYNOPSIS.innerHTML = data.synopsis;
 
 	MOVIE_DETAILS_PAGE_CAST.innerHTML = '';
@@ -263,7 +266,7 @@ ipcRenderer.on('update-movie-details', (event, data) => {
 		
 		const poster = template.querySelector('.poster');
 		if (related.poster) {
-			poster.src = cachedImageUrl(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
+			poster.src = await cachedImageUrl(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		if (related.object_type === 'movie') {
@@ -286,15 +289,15 @@ ipcRenderer.on('update-movie-details', (event, data) => {
 	allowBodyScroll();
 });
 
-ipcRenderer.on('update-show-details', (event, data) => {
-	setPlayerBackground(cachedImageUrl(data.images.backdrop));
+ipcRenderer.on('update-show-details', async (event, data) => {
+	setPlayerBackground(await cachedImageUrl(data.images.backdrop));
 
-	SHOW_DETAILS_PAGE_BACKDROP.src = cachedImageUrl(data.images.backdrop);
+	SHOW_DETAILS_PAGE_BACKDROP.src = await cachedImageUrl(data.images.backdrop);
 	SHOW_DETAILS_PAGE_TITLE.innerHTML = data.title;
 	SHOW_DETAILS_PAGE_AGE_RATING.innerHTML = data.age_rating;
 	SHOW_DETAILS_PAGE_GENRES.innerHTML = data.genres.join(', ');
 	SHOW_DETAILS_PAGE_RELEASE_YEAR.innerHTML = data.release_year;
-	SHOW_DETAILS_PAGE_POSTER.src = cachedImageUrl(data.images.poster);
+	SHOW_DETAILS_PAGE_POSTER.src = await cachedImageUrl(data.images.poster);
 	SHOW_DETAILS_PAGE_SYNOPSIS.innerHTML = data.synopsis;
 
 	SHOW_DETAILS_PAGE_RELATED.innerHTML = '';
@@ -328,7 +331,7 @@ ipcRenderer.on('update-show-details', (event, data) => {
 		const title = template.querySelector('.title');
 
 		if (episode.screenshot) {
-			screenshot.src = cachedImageUrl(episode.screenshot);
+			screenshot.src = await cachedImageUrl(episode.screenshot);
 		}
 
 		title.innerHTML = `E${episode.episode_number} ${episode.title}`;
@@ -346,7 +349,7 @@ ipcRenderer.on('update-show-details', (event, data) => {
 		
 		const poster = template.querySelector('.poster');
 		if (related.poster) {
-			poster.src = cachedImageUrl(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
+			poster.src = await cachedImageUrl(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		if (related.object_type === 'movie') {
@@ -367,7 +370,7 @@ ipcRenderer.on('update-show-details', (event, data) => {
 	allowBodyScroll();
 });
 
-ipcRenderer.on('search-results', (event, results) => {
+ipcRenderer.on('search-results', async (event, results) => {
 	SEARCH_PAGE_MEDIA_LIST.innerHTML = '';
 
 	const media = results.items;
@@ -377,7 +380,7 @@ ipcRenderer.on('search-results', (event, results) => {
 		
 		const poster = template.querySelector('.poster');
 		if (item.poster) {
-			poster.src = cachedImageUrl(`https://images.justwatch.com${item.poster.replace('{profile}', 's166')}`);
+			poster.src = await cachedImageUrl(`https://images.justwatch.com${item.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		if (item.object_type === 'movie') {

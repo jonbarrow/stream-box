@@ -6,13 +6,6 @@
 	"scripts": {
 		"lint": "eslint ."
 	},
-	"devDependencies": {
-		"@ctrl/cloudflare": "^1.4.3",
-		"electron": "^5.0.1",
-		"electron-builder": "^20.39.0",
-		"eslint": "^6.0.1",
-		"tough-cookie": "^3.0.1"
-	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
@@ -26,5 +19,18 @@
 		"json5": "^2.1.0",
 		"lowdb": "^1.0.0",
 		"parse-domain": "^2.3.1"
+	},
+	"build": {
+		"electronVersion": "5.0.6",
+		"files": [
+			"!dist",
+			"!live-tv",
+			"!plyr",
+			"!ocr.js",
+			"!scrapers/video-media/fmovies.to.js",
+			"!scrapers/video-media/104.196.45.69.js",
+			"!.gitignore",
+			"!README.md"
+		]
 	}
 }

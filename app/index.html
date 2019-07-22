@@ -18,6 +18,7 @@
 	<link rel="stylesheet" href="./assets/css/overlays/search.css">
 	<link rel="stylesheet" href="./assets/css/overlays/streams.css">
 	<link rel="stylesheet" href="./assets/css/index.css">
+	<link rel="stylesheet" href="./assets/css/keyboard-navigation.css">
 	<link rel="stylesheet" href="./assets/css/nav.css">
 	<link rel="stylesheet" href="./assets/css/pages/movie-details.css">
 	<link rel="stylesheet" href="./assets/css/pages/show-details.css">
@@ -30,6 +31,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 	<script async defer src="./assets/js/plyr.min.js"></script>
 	<script async defer src="./assets/js/index.js"></script>
+	<script async defer src="./assets/js/navigation.js"></script>
 	<script async defer src="./assets/js/dropdown.js"></script>
 	<script async defer src="./assets/js/ipc.js"></script>
 	<script async defer src="./assets/js/search.js"></script>
@@ -41,6 +43,8 @@
 
 <body class="noscroll">
 	<div id="app">
+
+		<div id="navigation-selector"></div>
 
 		<div id="loader">
 			<div class="lds-ellipsis">
@@ -132,11 +136,24 @@
 			<video controls crossorigin playsinline></video>
 		</div>
 
-		<nav id="top-navigation">
+		<nav id="top-navigation" class="kb-naviation-section">
 			<ol>
-				<li data-navigation="home-page" class="navigation-item selected"><span>Home</span></li><!--
-			 --><li data-navigation="search-page" class="navigation-item"><span>Search</span></li><!--
-			 --><li data-navigation="favorites-page" class="navigation-item"><span>Favorites</span></li>
+				<li
+					data-kb-right="nextElementSibling"
+					data-kb-down="#home-page-popular-movies .media"
+					data-navigation="home-page"
+					class="navigation-item selected kb-naviation-selected"><span>Home</span></li><!--
+			 --><li
+					data-kb-right="nextElementSibling"
+					data-kb-left="previousElementSibling"
+					data-kb-down="#home-page-popular-movies .media"
+					data-navigation="search-page"
+					class="navigation-item"><span>Search</span></li><!--
+			 --><li
+					data-kb-left="previousElementSibling"
+					data-kb-down="#home-page-popular-movies .media"
+					data-navigation="favorites-page"
+					class="navigation-item"><span>Favorites</span></li>
 				<hr>
 			</ol>
 		</nav>
@@ -338,7 +355,10 @@
 	</template>
 
 	<template template="media">
-		<div class="media">
+		<div
+			data-kb-right="nextElementSibling"
+			data-kb-left="previousElementSibling"
+			class="media">
 			<img src="" alt="" class="poster">
 		</div>
 	</template>
