@@ -3,15 +3,22 @@ process.on('unhandledRejection', (reason, p) => {
 });
 
 const { BrowserWindow, app, ipcMain, globalShortcut } = require('electron');
+const log = require('electron-log');
+const fs = require('fs-extra');
 const got = require('got');
 const path = require('path');
 const url = require('url');
 const BackgroundTask = require('./background_task');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+const {ScrapeMovieError, ScrapeTvShowError} = require('./errors');
 const { trakt, tmdb, justwatch } = require('./util');
 const IMDBClient = require('./util/imdb');
 const imdb = new IMDBClient();
+
+process.setUncaughtExceptionCaptureCallback(({stack}) => {
+	log.error(`${stack}\n`);
+});
 
 let SCRAPE_PROCESS;
 let LOCAL_RESOURCES_ROOT;
@@ -42,6 +49,8 @@ const JUSTWATCH_GENRES = [
 	'Western'
 ];
 
+fs.ensureDirSync(`${DATA_ROOT}/imageCache`);
+fs.ensureFileSync(`${DATA_ROOT}/series-data.json`); // Seems to be required for Mac
 const seriesDataStorage = low(new FileSync(`${DATA_ROOT}/series-data.json`));
 let ApplicationWindow;
 
@@ -71,7 +80,7 @@ app.on('ready', () => {
 	});
 
 	if (!isDev()) {
-		ApplicationWindow.setMenu(null);
+		//ApplicationWindow.setMenu(null);
 	}
 
 	ApplicationWindow.maximize();
@@ -275,12 +284,20 @@ ipcMain.on('search-media', async(event, {search_query, filters}) => {
 
 ipcMain.on('scrape-streams', async(event, { id, season, episode }) => {
 	if (SCRAPE_PROCESS) {
-		SCRAPE_PROCESS.kill();
+		if (!SCRAPE_PROCESS.killed) {
+			SCRAPE_PROCESS.kill();
+		}
 	}
 
 	SCRAPE_PROCESS = new BackgroundTask(`${__dirname}/background/scrape.html`);
 
-	SCRAPE_PROCESS.on('ERROR', console.error);
+	SCRAPE_PROCESS.on('error', error => {
+		if (season && episode) {
+			log.error(new ScrapeTvShowError(id, season, episode, error));
+		} else {
+			log.error(new ScrapeMovieError(id, error));
+		}
+	});
 
 	SCRAPE_PROCESS.on('ready', () => {
 		SCRAPE_PROCESS.send('scrape', {id, season, episode});

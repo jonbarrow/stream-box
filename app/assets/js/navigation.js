@@ -14,7 +14,7 @@ let textInputSelected = false;
 function navigationKeyHandle(event) {
 	const { key } = event;
 
-	if (textInputSelected && !nonLetterNumberKeys.contains(key)) {
+	if (textInputSelected && !nonLetterNumberKeys.includes(key)) {
 		return;
 	}
 

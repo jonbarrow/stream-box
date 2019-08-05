@@ -3,19 +3,27 @@
 		/* eslint-env browser */
 
 		const { ipcRenderer } = require('electron');
+		const log = require('electron-log');
 		const VideoMediaScraper = require('../scrapers/video-media');
+		const {ScrapeMovieError, ScrapeTvShowError} = require('../errors');
 
 		ipcRenderer.on('scrape', (event, {id, season, episode}) => {
-			const scraper = new VideoMediaScraper();
-			scraper.scrape(id, season, episode);
+			try {
+				const scraper = new VideoMediaScraper();
+				scraper.scrape(id, season, episode);
 
-			scraper.on('stream', stream => {
-				event.sender.send('stream', stream);
-			});
+				scraper.on('stream', stream => {
+					event.sender.send('stream', stream);
+				});
 
-			scraper.on('finished', () => {
+				scraper.on('finished', () => {
+					event.sender.send('finished');
+				});
+			} catch (error) {
+				event.sender.send('error', error);
 				event.sender.send('finished');
-			});
+			}
+			
 		});
 		
 	</script>

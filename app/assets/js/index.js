@@ -10,7 +10,15 @@
 		navigationKeyHandle
 */
 
-const imageCache = require('image-cache');
+const log = require('electron-log');
+
+window.addEventListener('error', ({error: {stack}}) => {
+	log.error(stack);
+});
+
+window.addEventListener('unhandledrejection', ({error: {stack}}) => {
+	log.error(stack);
+});
 
 // Misc globals
 const LOADER = document.getElementById('loader');
@@ -59,18 +67,6 @@ const SEARCH_PAGE_MEDIA_LIST = SEARCH_PAGE.querySelector('.list');
 
 function addEvent(object, event, func) {
 	object.addEventListener(event, func, true);
-}
-
-async function cachedImageUrl(url) {
-	if (!imageCache.isCachedSync(url)) {
-		// image-cache doesn't have a sync version of this method
-		await new Promise(resolve => {
-			imageCache.setCache(url, resolve);
-		});
-	}
-
-	const cachedPosterSrc = imageCache.getCacheSync(url);
-	return cachedPosterSrc.data;
 }
 
 function loadPage(id) {
@@ -183,6 +179,7 @@ document.addEventListener('keydown', event => {
 
 // Get around eslint no-unused-vars, and make 100% sure the variables are global
 !function() {
+	this.log = log;
 	this.CURRENT_LOADED_PAGE = CURRENT_LOADED_PAGE;
 	this.MOVIE_DETAILS_PAGE_WATCH_NOW = MOVIE_DETAILS_PAGE_WATCH_NOW;
 	this.MOVIE_DETAILS_PAGE_BACKDROP = MOVIE_DETAILS_PAGE_BACKDROP;
@@ -212,7 +209,6 @@ document.addEventListener('keydown', event => {
 	this.SEARCH_PAGE_SEARCH_INPUT = SEARCH_PAGE_SEARCH_INPUT;
 	this.SEARCH_PAGE_MEDIA_LIST = SEARCH_PAGE_MEDIA_LIST;
 
-	this.cachedImageUrl = cachedImageUrl;
 	this.loadPage = loadPage;
 	this.loadHomePage = loadHomePage;
 	this.loadMovieDetailsPage = loadMovieDetailsPage;

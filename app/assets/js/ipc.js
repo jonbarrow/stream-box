@@ -30,7 +30,6 @@
 		SEARCH_PAGE_SEARCH_INPUT
 		loadMovieDetailsPage
 		loadShowDetailsPage
-		cachedImageUrl
 		addEvent
 		showLoader
 		hideLoader
@@ -45,7 +44,11 @@
 	IPC events
 */
 
-const {ipcRenderer} = require('electron');
+const {ipcRenderer, remote} = require('electron');
+const path = require('path');
+const appPath = remote.app.getAppPath();
+const imageCache = require(path.resolve(appPath, './image_cache'));
+
 let currentSelectedMediaId;
 let currentSelectedMediaCast = [];
 let currentSelectedMediaCastPosition = -1;
@@ -115,7 +118,7 @@ async function loadCastListSection() {
 		if (castMember.profile) {
 			const img = document.createElement('img');
 			img.classList.add('cast-member');
-			img.src = await cachedImageUrl(castMember.profile);
+			img.src = await imageCache(castMember.profile);
 	
 			MOVIE_DETAILS_PAGE_CAST.appendChild(img);
 		}
@@ -160,7 +163,7 @@ ipcRenderer.on('update-home-carousel', async (event, movies) => {
 		const description = metadata.querySelector('.description');
 		const watchButton = metadata.querySelector('.buttons .watch-now');
 
-		backdrop.src = await cachedImageUrl(`https://image.tmdb.org/t/p/original${movie.images.backdrops[0].file_path}`);
+		backdrop.src = await imageCache(`https://image.tmdb.org/t/p/original${movie.images.backdrops[0].file_path}`);
 		title.innerHTML = movie.title;
 		description.innerHTML = movie.overview;
 
@@ -186,7 +189,7 @@ ipcRenderer.on('update-home-popular-movies', async (event, data) => {
 		
 		const poster = template.querySelector('.poster');
 		if (movie.poster) {
-			poster.src = await cachedImageUrl(`https://images.justwatch.com${movie.poster.replace('{profile}', 's166')}`);
+			poster.src = await imageCache(`https://images.justwatch.com${movie.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		addEvent(template, 'click', () => {
@@ -208,7 +211,7 @@ ipcRenderer.on('update-home-popular-tvshows', async (event, data) => {
 		
 		const poster = template.querySelector('.poster');
 		if (show.poster) {
-			poster.src = await cachedImageUrl(`https://images.justwatch.com${show.poster.replace('{profile}', 's166')}`);
+			poster.src = await imageCache(`https://images.justwatch.com${show.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		addEvent(template, 'click', () => {
@@ -228,15 +231,15 @@ ipcRenderer.on('update-movie-details', async (event, data) => {
 		scrapeStreams(data.imdb_id);
 	};
 
-	setPlayerBackground(await cachedImageUrl(data.images.backdrop));
+	setPlayerBackground(await imageCache(data.images.backdrop));
 
-	MOVIE_DETAILS_PAGE_BACKDROP.src = await cachedImageUrl(data.images.backdrop);
+	MOVIE_DETAILS_PAGE_BACKDROP.src = await imageCache(data.images.backdrop);
 	MOVIE_DETAILS_PAGE_TITLE.innerHTML = data.title;
 	MOVIE_DETAILS_PAGE_AGE_RATING.innerHTML = data.age_rating;
 	MOVIE_DETAILS_PAGE_RUNTIME.innerHTML = `${Math.floor(data.runtime / 60)}h${data.runtime % 60}m`;
 	MOVIE_DETAILS_PAGE_GENRES.innerHTML = data.genres.join(', ');
 	MOVIE_DETAILS_PAGE_RELEASE_YEAR.innerHTML = data.release_year;
-	MOVIE_DETAILS_PAGE_POSTER.src = await cachedImageUrl(data.images.poster);
+	MOVIE_DETAILS_PAGE_POSTER.src = await imageCache(data.images.poster);
 	MOVIE_DETAILS_PAGE_SYNOPSIS.innerHTML = data.synopsis;
 
 	MOVIE_DETAILS_PAGE_CAST.innerHTML = '';
@@ -266,7 +269,7 @@ ipcRenderer.on('update-movie-details', async (event, data) => {
 		
 		const poster = template.querySelector('.poster');
 		if (related.poster) {
-			poster.src = await cachedImageUrl(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
+			poster.src = await imageCache(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		if (related.object_type === 'movie') {
@@ -290,14 +293,14 @@ ipcRenderer.on('update-movie-details', async (event, data) => {
 });
 
 ipcRenderer.on('update-show-details', async (event, data) => {
-	setPlayerBackground(await cachedImageUrl(data.images.backdrop));
+	setPlayerBackground(await imageCache(data.images.backdrop));
 
-	SHOW_DETAILS_PAGE_BACKDROP.src = await cachedImageUrl(data.images.backdrop);
+	SHOW_DETAILS_PAGE_BACKDROP.src = await imageCache(data.images.backdrop);
 	SHOW_DETAILS_PAGE_TITLE.innerHTML = data.title;
 	SHOW_DETAILS_PAGE_AGE_RATING.innerHTML = data.age_rating;
 	SHOW_DETAILS_PAGE_GENRES.innerHTML = data.genres.join(', ');
 	SHOW_DETAILS_PAGE_RELEASE_YEAR.innerHTML = data.release_year;
-	SHOW_DETAILS_PAGE_POSTER.src = await cachedImageUrl(data.images.poster);
+	SHOW_DETAILS_PAGE_POSTER.src = await imageCache(data.images.poster);
 	SHOW_DETAILS_PAGE_SYNOPSIS.innerHTML = data.synopsis;
 
 	SHOW_DETAILS_PAGE_RELATED.innerHTML = '';
@@ -331,7 +334,7 @@ ipcRenderer.on('update-show-details', async (event, data) => {
 		const title = template.querySelector('.title');
 
 		if (episode.screenshot) {
-			screenshot.src = await cachedImageUrl(episode.screenshot);
+			screenshot.src = await imageCache(episode.screenshot);
 		}
 
 		title.innerHTML = `E${episode.episode_number} ${episode.title}`;
@@ -349,7 +352,7 @@ ipcRenderer.on('update-show-details', async (event, data) => {
 		
 		const poster = template.querySelector('.poster');
 		if (related.poster) {
-			poster.src = await cachedImageUrl(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
+			poster.src = await imageCache(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		if (related.object_type === 'movie') {
@@ -380,7 +383,7 @@ ipcRenderer.on('search-results', async (event, results) => {
 		
 		const poster = template.querySelector('.poster');
 		if (item.poster) {
-			poster.src = await cachedImageUrl(`https://images.justwatch.com${item.poster.replace('{profile}', 's166')}`);
+			poster.src = await imageCache(`https://images.justwatch.com${item.poster.replace('{profile}', 's166')}`);
 		} // needs an else
 
 		if (item.object_type === 'movie') {
@@ -407,7 +410,7 @@ ipcRenderer.once('stream', (event, stream) => {
 
 ipcRenderer.on('stream', (event, stream) => {
 	// Populate a stream list to pick which stream should be played
-	console.log(stream);
+	// console.log(stream);
 });
 
 // Get around eslint no-unused-vars, and make 100% sure the variables are global
