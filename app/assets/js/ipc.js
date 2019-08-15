@@ -291,10 +291,10 @@ ipcRenderer.on('update-movie-details', async (event, data) => {
 			callback();
 		},
 		callback => {
-			currentSelectedMediaCast = data.cast;
-			currentSelectedMediaCastPosition = -1;
+			//currentSelectedMediaCast = data.cast;
+			//currentSelectedMediaCastPosition = -1;
 
-			loadCastListSection();
+			//loadCastListSection();
 			callback();
 		},
 	], () => {
