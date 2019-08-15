@@ -17,7 +17,7 @@ electron-builder -w[l[m]]
 
 Use flag `w` to build for Windows, `l` to build for Linux and/or `m` to build for Mac, or any combination to build for multiple targets. Will build to `./dist`
 
-[preview](https://i.imgur.com/urOnbvg.gif)
+[preview](https://i.imgur.com/D8k0M8N.gif)
 
 ### Todo List
 - [x] Movie search
