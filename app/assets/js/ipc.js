@@ -127,14 +127,14 @@ function updateCastListObserver() {
 	castListObserver.observe([...MOVIE_DETAILS_PAGE_CAST.querySelectorAll('img')].pop());
 }
 
-async function loadCastListSection() {
+function loadCastListSection() {
 	const section = currentSelectedMediaCast.slice(currentSelectedMediaCastPosition+1, currentSelectedMediaCastPosition+10);
 
 	for (const castMember of section) {
 		if (castMember.profile) {
 			const img = document.createElement('img');
 			img.classList.add('cast-member');
-			img.src = await imageCache(castMember.profile);
+			img.src = imageCache(castMember.profile);
 	
 			MOVIE_DETAILS_PAGE_CAST.appendChild(img);
 		}
@@ -246,53 +246,62 @@ ipcRenderer.on('update-movie-details', async (event, data) => {
 	MOVIE_DETAILS_PAGE_VIDEOS.innerHTML = '';
 	MOVIE_DETAILS_PAGE_RELATED.innerHTML = '';
 
-	currentSelectedMediaCast = data.cast;
-	currentSelectedMediaCastPosition = -1;
+	async.parallel([
+		callback => {
+			if (data.videos) {
+				for (const video of data.videos) {
+					const iframe = document.createElement('iframe');
+					iframe.classList.add('video');
+					iframe.src = `https://www.youtube-nocookie.com/embed/${video.external_id}`;
+					iframe.frameBorder = 0;
+					iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+					iframe.allowfullscreen = true;
+			
+					MOVIE_DETAILS_PAGE_VIDEOS.appendChild(iframe);
+				}
+			}
 
-	loadCastListSection();
-
-	if (data.videos) {
-		for (const video of data.videos) {
-			const iframe = document.createElement('iframe');
-			iframe.classList.add('video');
-			iframe.src = `https://www.youtube-nocookie.com/embed/${video.external_id}`;
-			iframe.frameBorder = 0;
-			iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
-			iframe.allowfullscreen = true;
-	
-			MOVIE_DETAILS_PAGE_VIDEOS.appendChild(iframe);
-		}
-	}
-
-	for (const related of data.related_media.items) {
-		const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
-		template.classList.add('related');
-
-		template.dataset.kbUp = '#watch-now';
+			callback();
+		},
+		callback => {
+			for (const related of data.related_media.items) {
+				const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
+				template.classList.add('related');
 		
-		const poster = template.querySelector('.poster');
-		if (related.poster) {
-			poster.src = await imageCache(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
-		} // needs an else
+				template.dataset.kbUp = '#watch-now';
+				
+				const poster = template.querySelector('.poster');
+				if (related.poster) {
+					poster.src = imageCache(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
+				} // needs an else
+		
+				if (related.object_type === 'movie') {
+					addEvent(template, 'click', () => {
+						loadMovieDetails(related.id);
+					});
+				} else if (related.object_type === 'show') {
+					addEvent(template, 'click', () => {
+						loadShowDetails(related.id, true);
+					});
+				}
+		
+				MOVIE_DETAILS_PAGE_RELATED.appendChild(template);
+			}
 
-		if (related.object_type === 'movie') {
-			addEvent(template, 'click', () => {
-				loadMovieDetails(related.id);
-			});
-		} else if (related.object_type === 'show') {
-			addEvent(template, 'click', () => {
-				loadShowDetails(related.id, true);
-			});
-		}
+			callback();
+		},
+		callback => {
+			currentSelectedMediaCast = data.cast;
+			currentSelectedMediaCastPosition = -1;
 
-		MOVIE_DETAILS_PAGE_RELATED.appendChild(template);
-	}
-
-	currentSelectedMediaId = data.id;
-
-	loadMovieDetailsPage();
-	hideLoader();
-	allowBodyScroll();
+			loadCastListSection();
+			callback();
+		},
+	], () => {
+		loadMovieDetailsPage();
+		hideLoader();
+		allowBodyScroll();
+	});
 });
 
 ipcRenderer.on('update-show-details', async (event, data) => {
@@ -314,92 +323,104 @@ ipcRenderer.on('update-show-details', async (event, data) => {
 	SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-options').innerHTML = '';
 	SHOW_DETAILS_PAGE_EPISODES.innerHTML = '';
 
-	for (const season of data.seasons) {
-		const option = document.createElement('span');
-
+	async.parallel([
+		callback => {
+			for (const season of data.seasons) {
+				const option = document.createElement('span');
 		
-		addEvent(option, 'click', () => {
-			loadShowDetails(season.id);
-		});
-
-		option.dataset.kbUp = 'previousElementSibling';
-		option.dataset.kbDown = 'nextElementSibling';
-		if (data.seasons.indexOf(season) === 0) {
-			option.dataset.kbUp = `.dropdown-select[data-dropdown-id="${SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-select').dataset.dropdownId}"]`;
-		}
-
-		option.classList.add('option');
-		option.dataset.index = season.season_number-1;
-		option.dataset.value = season.season_number;
-		option.innerText = season.title;
-
-		if (season.season_number === data.season) {
-			option.classList.add('selected');
-			SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-value').innerText = season.title;
-		}
-
-		SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-options').appendChild(option);
-	}
-
-	for (const episode of data.episodes) {
-		const template = document.querySelector('[template="episode"]').content.firstElementChild.cloneNode(true);
-
-		template.dataset.kbUp = '#show-details-page .dropdown-select';
-		template.dataset.kbLeft = 'previousElementSibling';
-		template.dataset.kbRight = 'nextElementSibling';
-		if (data.episodes.indexOf(episode) === 0) {
-			template.dataset.kbLeft = '#show-details-page .dropdown-select';
-		}
+				
+				addEvent(option, 'click', () => {
+					loadShowDetails(season.id);
+				});
 		
-		const screenshot = template.querySelector('.screenshot');
-		const title = template.querySelector('.title');
+				option.dataset.kbUp = 'previousElementSibling';
+				option.dataset.kbDown = 'nextElementSibling';
+				if (data.seasons.indexOf(season) === 0) {
+					option.dataset.kbUp = `.dropdown-select[data-dropdown-id="${SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-select').dataset.dropdownId}"]`;
+				}
+		
+				option.classList.add('option');
+				option.dataset.index = season.season_number-1;
+				option.dataset.value = season.season_number;
+				option.innerText = season.title;
+		
+				if (season.season_number === data.season) {
+					option.classList.add('selected');
+					SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-value').innerText = season.title;
+				}
+		
+				SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-options').appendChild(option);
+			}
 
-		if (episode.screenshot) {
-			screenshot.src = await imageCache(episode.screenshot);
+			callback();
+		},
+		callback => {
+			for (const episode of data.episodes) {
+				const template = document.querySelector('[template="episode"]').content.firstElementChild.cloneNode(true);
+		
+				template.dataset.kbUp = '#show-details-page .dropdown-select';
+				template.dataset.kbLeft = 'previousElementSibling';
+				template.dataset.kbRight = 'nextElementSibling';
+				if (data.episodes.indexOf(episode) === 0) {
+					template.dataset.kbLeft = '#show-details-page .dropdown-select';
+				}
+				
+				const screenshot = template.querySelector('.screenshot');
+				const title = template.querySelector('.title');
+		
+				if (episode.screenshot) {
+					screenshot.src = imageCache(episode.screenshot);
+				}
+		
+				title.innerHTML = `E${episode.episode_number} ${episode.title}`;
+		
+				addEvent(template, 'click', () => {
+					showLoader();
+					scrapeStreams(data.imdb_id, data.season, episode.episode_number);
+				});
+		
+				SHOW_DETAILS_PAGE_EPISODES.appendChild(template);
+			}
+
+			callback();
+		},
+		callback => {
+			for (const related of data.related_media.items) {
+				const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
+				template.classList.add('related');
+		
+				template.dataset.kbDown = '#show-details-page .episodes .body .episode';
+				template.dataset.kbUp ='#top-navigation ol li';
+		
+				const poster = template.querySelector('.poster');
+				if (related.poster) {
+					poster.src = imageCache(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
+				} // needs an else
+		
+				if (related.object_type === 'movie') {
+					addEvent(template, 'click', () => {
+						loadMovieDetails(related.id);
+					});
+				} else if (related.object_type === 'show') {
+					addEvent(template, 'click', () => {
+						loadShowDetails(related.id, true);
+					});
+				}
+		
+				SHOW_DETAILS_PAGE_RELATED.appendChild(template);
+			}
+
+			callback();
 		}
-
-		title.innerHTML = `E${episode.episode_number} ${episode.title}`;
-
-		addEvent(template, 'click', () => {
-			showLoader();
-			scrapeStreams(data.imdb_id, data.season, episode.episode_number);
-		});
-
-		SHOW_DETAILS_PAGE_EPISODES.appendChild(template);
-	}
-
-	for (const related of data.related_media.items) {
-		const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
-		template.classList.add('related');
-
-		template.dataset.kbDown = '#show-details-page .episodes .body .episode';
-		template.dataset.kbUp ='#top-navigation ol li';
-
-		const poster = template.querySelector('.poster');
-		if (related.poster) {
-			poster.src = await imageCache(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
-		} // needs an else
-
-		if (related.object_type === 'movie') {
-			addEvent(template, 'click', () => {
-				loadMovieDetails(related.id);
-			});
-		} else if (related.object_type === 'show') {
-			addEvent(template, 'click', () => {
-				loadShowDetails(related.id, true);
-			});
-		}
-
-		SHOW_DETAILS_PAGE_RELATED.appendChild(template);
-	}
-
-	currentSelectedItem.classList.remove('kb-navigation-selected');
-	currentSelectedItem = SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-select');
-	currentSelectedItem.classList.add('kb-navigation-selected');
-
-	loadShowDetailsPage();
-	hideLoader();
-	allowBodyScroll();
+	], () => {
+		currentSelectedItem.classList.remove('kb-navigation-selected');
+		currentSelectedItem = SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-select');
+		currentSelectedItem.classList.add('kb-navigation-selected');
+	
+		loadShowDetailsPage();
+		hideLoader();
+		allowBodyScroll();
+	});
 });
 
 ipcRenderer.on('search-results', async (event, data) => {
