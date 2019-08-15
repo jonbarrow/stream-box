@@ -26,5 +26,4 @@ Use flag `w` to build for Windows, `l` to build for Linux and/or `m` to build fo
 - [x] TV Show scraping
 - [ ] Stream selection
 - [ ] Gamepad support (PS3/4, Xbox, etc)
-- ~~[ ] IR Remote Control support (using [this remote](https://www.adafruit.com/product/389))~~ Not using this remote anymore
-- [ ] Support for the OSMC remote control (kinda done)
+- [x] Support for the OSMC remote control
