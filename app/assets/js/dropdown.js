@@ -1,5 +1,9 @@
 /* eslint-env browser */
-/* global addEvent */
+/*
+	global
+		addEvent
+		currentSelectedItem
+*/
 
 const crypto = require('crypto');
 

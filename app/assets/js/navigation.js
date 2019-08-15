@@ -3,6 +3,7 @@
 /*
 	global
 		loadHomePage
+		virtualKeyboard
 */
 
 const keybinds = require('../keybinds.json');

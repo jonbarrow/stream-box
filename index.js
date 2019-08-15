@@ -13,7 +13,7 @@ const BackgroundTask = require('./background_task');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const {ScrapeMovieError, ScrapeTvShowError} = require('./errors');
-const { trakt, tmdb, justwatch } = require('./util');
+const { justwatch } = require('./util');
 const IMDBClient = require('./util/imdb');
 const imdb = new IMDBClient();
 
@@ -52,7 +52,6 @@ const JUSTWATCH_GENRES = [
 
 let ApplicationWindow;
 let seriesDataStorage;
-let configStorage;
 
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {
@@ -388,7 +387,6 @@ async function initialize() {
 	fs.ensureFileSync(`${DATA_ROOT}/series-data.json`);
 	fs.ensureFileSync(`${DATA_ROOT}/config.json`);
 	seriesDataStorage = low(new FileSync(`${DATA_ROOT}/series-data.json`));
-	configStorage = low(new FileSync(`${DATA_ROOT}/config.json`));
 
 	await imdb.temporaryCredentials();
 

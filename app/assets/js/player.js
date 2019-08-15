@@ -4,6 +4,8 @@
 	global
 		Plyr
 		Hls
+		keybindsBinds
+		keybindsKeys
 */
 
 const isPi = require('detect-rpi');

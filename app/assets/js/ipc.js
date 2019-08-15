@@ -36,6 +36,8 @@
 		disallowBodyScroll
 		setPlayerBackground
 		startStream
+		currentSelectedItem
+		virtualKeyboard
 */
 
 
@@ -437,7 +439,7 @@ ipcRenderer.once('stream', (event, stream) => {
 	startStream(stream);
 });
 
-ipcRenderer.on('stream', (event, stream) => {
+ipcRenderer.on('stream', () => {
 	// Populate a stream list to pick which stream should be played
 	// console.log(stream);
 });

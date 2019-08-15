@@ -4,10 +4,13 @@
 	global
 		isPi
 		omxplayer
-		player
 		omxplayerKeyHandle
 		plyrKeyHandle
 		navigationKeyHandle
+		currentSelectedItem
+		VirtualKeyboard
+		searchMedia
+		playerOpen
 */
 
 const log = require('electron-log');

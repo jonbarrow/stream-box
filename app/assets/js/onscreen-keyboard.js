@@ -1,3 +1,5 @@
+/* eslint-env browser */
+
 const EventEmitter = require('events').EventEmitter;
 
 class VirtualKeyboard extends EventEmitter {
@@ -130,3 +132,5 @@ class VirtualKeyboard extends EventEmitter {
 		}
 	}
 }
+
+module.exports = VirtualKeyboard;
