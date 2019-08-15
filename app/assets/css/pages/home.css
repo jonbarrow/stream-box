@@ -1,57 +1,8 @@
-#home-page .carousel {
-	height: 40vh;
-	color: #E0E2E6;
-}
-
 #home-page .content {
-	min-height: 52vh;
+	min-height: 92vh;
 	padding-bottom: 1vh;
 	color: #E0E2E6;
 	/*margin: 50px;*/
-}
-
-.carousel-item {
-	width: 100%;
-	height: 100%;
-	overflow: hidden;
-	position: relative;
-}
-
-.carousel-item .backdrop {
-	position: absolute;
-	overflow: hidden;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	filter: brightness(40%);
-}
-
-.carousel-item .metadata {
-	width: 50%;
-	margin: 50px;
-	bottom: 0;
-	position: absolute;
-	backdrop-filter: brightness(0);
-}
-
-.carousel-item .metadata>* {
-	margin-top: 20px;
-}
-
-.carousel-item .metadata .title {
-	margin-top: 0;
-}
-
-.carousel-item .metadata .description {
-	height: 74px;
-	text-overflow: ellipsis;
-}
-
-.carousel-item .metadata .buttons .watch-now {
-	background-color: #EB333F;
-	border-radius: 5px;
-	width: 150px;
-	height: 30px;
 }
 
 #home-page .content .section {
@@ -89,7 +40,7 @@
 #home-page .content .section .media {
 	display: inline-block;
 	position: relative;
-	margin: 20px 15px 50px 15px;
+	margin: 30px 15px 50px 15px;
 	height: 197.25px;
 	width: 132px;
 	transition: transform 100ms;

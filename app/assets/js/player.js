@@ -10,6 +10,7 @@ const isPi = require('detect-rpi');
 const omxplayer = require('../omxplayer');
 const video = document.querySelector('video');
 video.addEventListener('error', event => {
+	console.log(error);
 	const error = event.path[0].error;
 	alert(error.message);
 }, true);
@@ -58,7 +59,7 @@ function startStream(stream) {
 	if (isPi()) { // Pi's get to use omxplayer until I find something better
 		omxplayer.init(stream.file);
 	} else { // Non-pi systems get Plyr
-		if (stream.m3u8) {
+		if (stream.m3u8 || stream.file.endsWith('.m3u8')) {
 			if (Hls.isSupported()) {
 				console.log(`Hls.isSupported() ${stream.file}`);
 				const hls = new Hls();
@@ -179,8 +180,24 @@ function plyrKeyHandle(event) {
 	
 	const {key} = event;
 
-	if ((key === 'Escape' || key === 'Home' || key === 'BrowserBack') && player.playing) {
-		hidePlayer();
+	if (!keybindsKeys.includes(key)) {
+		return;
+	}
+
+	const bind = keybindsBinds[keybindsKeys.indexOf(key)];
+
+	switch (bind) {
+		case 'goHome':
+		case 'back':
+		case 'stopMedia':
+			hidePlayer();
+			break;
+		case 'select':
+		case 'toggleMediaPlay':
+			player.togglePlay();
+			break;
+		default:
+			break;
 	}
 }
 

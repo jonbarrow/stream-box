@@ -1,0 +1,59 @@
+.keyboard {
+	width: 100vw;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+
+	background: #14181D;
+}
+
+.keyboard .keys {
+	display: inline-grid;
+	height: 100%;
+	width: 66%;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+	grid-gap: 5px;
+	grid-template-areas:
+	". . . . . . . . . ."
+	". . . . . . . . . ."
+	". . . . . . . . . ."
+	". . . . . . . . . ."
+	". . . spacebar spacebar spacebar spacebar . backspace backspace"
+	". . . . . . . . enter enter";
+	margin-left: 50%;
+	transform: translateX(-50%);
+}
+
+.keyboard .keys .spacebar { grid-area: spacebar; }
+.keyboard .keys .backspace { grid-area: backspace; }
+.keyboard .keys .enter { grid-area: enter; }
+
+.keyboard .keys .keyboard-key {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	/*border: 2px solid #37393A;*/
+	background: #37393A;
+	color: whitesmoke;
+	font-size: 1.5em;
+}
+
+.keyboard .keys .keyboard-key.blank {
+	background: #232524;
+}
+
+.keyboard .keys .keyboard-key:not(.spacebar):not(.enter):not(.backspace) {
+	padding: 5px 15px;
+}
+
+.keyboard .keys .keyboard-key-flash {
+	background: #232524;
+}
+
+/*
+.keyboard .keys .enter {
+	color: whitesmoke;
+	background: #5181AD;
+}
+*/

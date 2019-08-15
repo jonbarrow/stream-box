@@ -1,13 +1,20 @@
 /* eslint-env browser */
 /* global addEvent */
 
+const crypto = require('crypto');
+
 document.querySelectorAll('.dropdown').forEach(dropdown => {
+	const dropdownSelect = dropdown.querySelector('.dropdown-select');
+
 	addEvent(dropdown.querySelector('.dropdown-select'), 'click', event => {
 		event.stopPropagation();
 		
 		if (dropdown.classList.contains('opened')) {
 			dropdown.classList.remove('opened');
+			dropdownSelect.dataset.kbDown = dropdownSelect.dataset.kbDownOriginal;
 		} else {
+			dropdownSelect.dataset.kbDownOriginal = dropdownSelect.dataset.kbDown;
+			dropdownSelect.dataset.kbDown = `.dropdown-select[data-dropdown-id="${dropdownId}"] + .dropdown-options .option`;
 			const currentlyOpeneddropdown = document.querySelector('.dropdown.opened');
 			if (currentlyOpeneddropdown) {
 				currentlyOpeneddropdown.classList.remove('opened');
@@ -16,6 +23,9 @@ document.querySelectorAll('.dropdown').forEach(dropdown => {
 			dropdown.classList.add('opened');
 		}
 	});
+
+	const dropdownId = crypto.randomBytes(5).toString('hex');
+	dropdownSelect.dataset.dropdownId = dropdownId;
 
 	if (dropdown.classList.contains('opened')) {
 		dropdown.classList.remove('opened');
@@ -40,12 +50,20 @@ document.querySelectorAll('.dropdown').forEach(dropdown => {
 	}
 
 	dropdownValue.innerHTML = firstOption.innerHTML;
+
+	allOptions.forEach(option => {
+		option.dataset.kbUp = 'previousElementSibling';
+		option.dataset.kbDown = 'nextElementSibling';
+	});
+
+	firstOption.dataset.kbUp = `.dropdown-select[data-dropdown-id="${dropdownId}"]`;
 });
 
 // Close dropdown when clicking anywhere on the window
 document.addEventListener('click', ({target}) => {
 	if (target.tagName === 'SPAN' && target.classList.contains('option')) {
 		const dropdown = target.parentElement.parentElement;
+		const dropdownSelect = dropdown.querySelector('.dropdown-select');
 		const dropdownValue = dropdown.querySelector('.dropdown-value');
 
 		if (!dropdown.classList.contains('opened')) {
@@ -72,9 +90,16 @@ document.addEventListener('click', ({target}) => {
 				if(onChange && typeof onChange === 'function') {
 					onChange();
 				}
-
 			}
 		}
+
+		if (target.classList.contains('kb-navigation-selected')) {
+			currentSelectedItem = target.parentElement.parentElement.querySelector('.dropdown-select');
+			target.classList.remove('kb-navigation-selected');
+			currentSelectedItem.classList.add('kb-navigation-selected');
+		}
+
+		dropdownSelect.dataset.kbDown = dropdownSelect.dataset.kbDownOriginal;
 	}
 
 	document.querySelectorAll('.dropdown.opened').forEach(dropdown => {

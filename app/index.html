@@ -18,6 +18,7 @@
 	<link rel="stylesheet" href="./assets/css/overlays/search.css">
 	<link rel="stylesheet" href="./assets/css/overlays/streams.css">
 	<link rel="stylesheet" href="./assets/css/index.css">
+	<link rel="stylesheet" href="./assets/css/onscreen-keyboard.css">
 	<link rel="stylesheet" href="./assets/css/keyboard-navigation.css">
 	<link rel="stylesheet" href="./assets/css/nav.css">
 	<link rel="stylesheet" href="./assets/css/pages/movie-details.css">
@@ -30,6 +31,7 @@
 	</script>
 	<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 	<script async defer src="./assets/js/plyr.min.js"></script>
+	<script async defer src="./assets/js/onscreen-keyboard.js"></script>
 	<script async defer src="./assets/js/index.js"></script>
 	<script async defer src="./assets/js/navigation.js"></script>
 	<script async defer src="./assets/js/dropdown.js"></script>
@@ -136,24 +138,24 @@
 			<video controls crossorigin playsinline></video>
 		</div>
 
-		<nav id="top-navigation" class="kb-naviation-section">
+		<nav id="top-navigation" class="kb-navigation-section">
 			<ol>
 				<li
 					data-kb-right="nextElementSibling"
 					data-kb-down="#home-page-popular-movies .media"
 					data-navigation="home-page"
-					class="navigation-item selected kb-naviation-selected"><span>Home</span></li><!--
+					class="navigation-item selected kb-navigation-selected kb-selectable"><span>Home</span></li><!--
 			 --><li
 					data-kb-right="nextElementSibling"
 					data-kb-left="previousElementSibling"
 					data-kb-down="#home-page-popular-movies .media"
 					data-navigation="search-page"
-					class="navigation-item"><span>Search</span></li><!--
+					class="navigation-item kb-selectable"><span>Search</span></li><!--
 			 --><li
 					data-kb-left="previousElementSibling"
 					data-kb-down="#home-page-popular-movies .media"
 					data-navigation="favorites-page"
-					class="navigation-item"><span>Favorites</span></li>
+					class="navigation-item kb-selectable"><span>Favorites</span></li>
 				<hr>
 			</ol>
 		</nav>
@@ -176,7 +178,7 @@
 								<!--add "add to favorites" button-->
 							</div>
 						</div>
-						<button id="watch-now" class="watch-now"><i class="fal fa-5x fa-play-circle"></i></button>
+						<button id="watch-now" class="watch-now" data-kb-up="#top-navigation ol li" data-kb-down="#movie-details-page .other-media .related .body .media"><i class="fal fa-5x fa-play-circle"></i></button>
 					</div>
 				</div>
 				<div class="content">
@@ -227,7 +229,12 @@
 					<div class="information">
 						<div class="season-selection">
 							<div class="dropdown">
-								<div class="dropdown-select">
+								<div
+									class="dropdown-select"
+									data-kb-up="#top-navigation ol li"
+									data-kb-down="#show-details-page .episodes .body .episode"
+									data-kb-right="#show-details-page .related .body .media"
+								>
 									<div class="dropdown-value" data-option-index="0"></div>
 									<div class="dropdown-arrow"><i class="fal fa-chevron-down"></i></div>
 								</div>
@@ -254,7 +261,6 @@
 			</div>
 
 			<div id="home-page" class="page active">
-				<div class="carousel"></div>
 				<div class="content">
 					<div class="section" id="home-page-popular-movies">
 						<h3 class="title">Popular Movies</h3>
@@ -287,7 +293,7 @@
 
 			<div id="search-page" class="page">
 				<div class="content">
-					<div id="search-container">
+					<div id="search-container" data-kb-up="#top-navigation ol li" data-kb-down="#search-filters .dropdown .dropdown-select">
 						<button id="search-icon">
 							<i class="fal fa-search"></i>
 						</button>
@@ -295,7 +301,7 @@
 					</div>
 					<div id="search-filters">
 						<div class="dropdown" data-onchange="searchMedia" data-type="list" data-filter="content-type">
-							<div class="dropdown-select">
+							<div class="dropdown-select" data-kb-up="#search-container" data-kb-down="#search-page .list .media">
 								<div class="dropdown-value" data-option-index="0"></div>
 								<div class="dropdown-arrow"><i class="fal fa-chevron-down"></i></div>
 							</div>
@@ -329,6 +335,71 @@
 		</div>
 	</div>
 
+	<div class="keyboard hidden">
+		<div class="keys">
+			<div id="key-1" data-key="1" data-key-shifted="!" class="keyboard-key" data-kb-right="#key-2"  data-kb-down="#key-q">1</div>
+			<div id="key-2" data-key="2" data-key-shifted="@" class="keyboard-key" data-kb-right="#key-3" data-kb-left="#key-1" data-kb-down="#key-w">2</div>
+			<div id="key-3" data-key="3" data-key-shifted="#" class="keyboard-key" data-kb-right="#key-4" data-kb-left="#key-2" data-kb-down="#key-e">3</div>
+			<div id="key-4" data-key="4" data-key-shifted="$" class="keyboard-key" data-kb-right="#key-5" data-kb-left="#key-3" data-kb-down="#key-r">4</div>
+			<div id="key-5" data-key="5" data-key-shifted="%" class="keyboard-key" data-kb-right="#key-6" data-kb-left="#key-4" data-kb-down="#key-t">5</div>
+			<div id="key-6" data-key="6" data-key-shifted="^" class="keyboard-key" data-kb-right="#key-7" data-kb-left="#key-5" data-kb-down="#key-y">6</div>
+			<div id="key-7" data-key="7" data-key-shifted="&" class="keyboard-key" data-kb-right="#key-8" data-kb-left="#key-6" data-kb-down="#key-u">7</div>
+			<div id="key-8" data-key="8" data-key-shifted="*" class="keyboard-key" data-kb-right="#key-9" data-kb-left="#key-7" data-kb-down="#key-i">8</div>
+			<div id="key-9" data-key="9" data-key-shifted="(" class="keyboard-key" data-kb-right="#key-0" data-kb-left="#key-8" data-kb-down="#key-o">9</div>
+			<div id="key-0" data-key="0" data-key-shifted=")" class="keyboard-key" data-kb-left="#key-9" data-kb-down="#key-p">0</div>
+			
+			<div id="key-q" data-key="q" data-key-shifted="Q" class="keyboard-key" data-kb-right="#key-w" data-kb-up="#key-1" data-kb-down="#key-a">q</div>
+			<div id="key-w" data-key="w" data-key-shifted="W" class="keyboard-key" data-kb-right="#key-e" data-kb-left="#key-q" data-kb-up="#key-2" data-kb-down="#key-s">w</div>
+			<div id="key-e" data-key="e" data-key-shifted="E" class="keyboard-key" data-kb-right="#key-r" data-kb-left="#key-w" data-kb-up="#key-3" data-kb-down="#key-d">e</div>
+			<div id="key-r" data-key="r" data-key-shifted="R" class="keyboard-key" data-kb-right="#key-t" data-kb-left="#key-e" data-kb-up="#key-4" data-kb-down="#key-f">r</div>
+			<div id="key-t" data-key="t" data-key-shifted="T" class="keyboard-key" data-kb-right="#key-y" data-kb-left="#key-r" data-kb-up="#key-5" data-kb-down="#key-g">t</div>
+			<div id="key-y" data-key="y" data-key-shifted="Y" class="keyboard-key" data-kb-right="#key-u" data-kb-left="#key-t" data-kb-up="#key-6" data-kb-down="#key-h">y</div>
+			<div id="key-u" data-key="u" data-key-shifted="U" class="keyboard-key" data-kb-right="#key-i" data-kb-left="#key-y" data-kb-up="#key-7" data-kb-down="#key-j">u</div>
+			<div id="key-i" data-key="i" data-key-shifted="I" class="keyboard-key" data-kb-right="#key-o" data-kb-left="#key-u" data-kb-up="#key-8" data-kb-down="#key-k">i</div>
+			<div id="key-o" data-key="o" data-key-shifted="O" class="keyboard-key" data-kb-right="#key-p" data-kb-left="#key-i" data-kb-up="#key-9" data-kb-down="#key-l">o</div>
+			<div id="key-p" data-key="p" data-key-shifted="P" class="keyboard-key" data-kb-left="#key-o" data-kb-up="#key-0" data-kb-down="#key-dash">p</div>
+			
+			<div id="key-a" data-key="a" data-key-shifted="A" class="keyboard-key" data-kb-right="#key-s" data-kb-up="#key-q" data-kb-down="#key-z">a</div>
+			<div id="key-s" data-key="s" data-key-shifted="S" class="keyboard-key" data-kb-right="#key-d" data-kb-left="#key-a" data-kb-up="#key-w" data-kb-down="#key-x">s</div>
+			<div id="key-d" data-key="d" data-key-shifted="D" class="keyboard-key" data-kb-right="#key-f" data-kb-left="#key-s" data-kb-up="#key-e" data-kb-down="#key-c">d</div>
+			<div id="key-f" data-key="f" data-key-shifted="F" class="keyboard-key" data-kb-right="#key-g" data-kb-left="#key-d" data-kb-up="#key-r" data-kb-down="#key-v">f</div>
+			<div id="key-g" data-key="g" data-key-shifted="G" class="keyboard-key" data-kb-right="#key-h" data-kb-left="#key-f" data-kb-up="#key-t" data-kb-down="#key-b">g</div>
+			<div id="key-h" data-key="h" data-key-shifted="H" class="keyboard-key" data-kb-right="#key-j" data-kb-left="#key-g" data-kb-up="#key-y" data-kb-down="#key-n">h</div>
+			<div id="key-j" data-key="j" data-key-shifted="J" class="keyboard-key" data-kb-right="#key-k" data-kb-left="#key-h" data-kb-up="#key-u" data-kb-down="#key-m">j</div>
+			<div id="key-k" data-key="k" data-key-shifted="K" class="keyboard-key" data-kb-right="#key-l" data-kb-left="#key-j" data-kb-up="#key-i" data-kb-down="#key-period">k</div>
+			<div id="key-l" data-key="l" data-key-shifted="L" class="keyboard-key" data-kb-right="#key-dash" data-kb-left="#key-k" data-kb-up="#key-o" data-kb-down="#key-lodash">l</div>
+			<div id="key-dash" data-key="-" class="keyboard-key" data-kb-left="#key-l" data-kb-up="#key-p" data-kb-down="#key-lodash">-</div>
+			
+			<div id="key-z" data-key="z" data-key-shifted="Z" class="keyboard-key" data-kb-right="#key-x" data-kb-up="#key-a" data-kb-down="#key-space">z</div>
+			<div id="key-x" data-key="x" data-key-shifted="X" class="keyboard-key" data-kb-right="#key-c" data-kb-left="#key-z" data-kb-up="#key-s" data-kb-down="#key-space">x</div>
+			<div id="key-c" data-key="c" data-key-shifted="C" class="keyboard-key" data-kb-right="#key-v" data-kb-left="#key-x" data-kb-up="#key-d" data-kb-down="#key-space">c</div>
+			<div id="key-v" data-key="v" data-key-shifted="V" class="keyboard-key" data-kb-right="#key-b" data-kb-left="#key-c" data-kb-up="#key-f" data-kb-down="#key-space">v</div>
+			<div id="key-b" data-key="b" data-key-shifted="B" class="keyboard-key" data-kb-right="#key-n" data-kb-left="#key-v" data-kb-up="#key-g" data-kb-down="#key-space">b</div>
+			<div id="key-n" data-key="n" data-key-shifted="N" class="keyboard-key" data-kb-right="#key-m" data-kb-left="#key-b" data-kb-up="#key-h" data-kb-down="#key-space">n</div>
+			<div id="key-m" data-key="m" data-key-shifted="M" class="keyboard-key" data-kb-right="#key-period" data-kb-left="#key-n" data-kb-up="#key-j" data-kb-down="#key-space">m</div>
+			<div id="key-period" data-key="." class="keyboard-key" data-kb-right="#key-lodash" data-kb-left="#key-m" data-kb-up="#key-k" data-kb-down="#key-space">.</div>
+			<div id="key-lodash" data-key="_" class="keyboard-key" data-kb-right="#key-shift" data-kb-left="#key-period" data-kb-up="#key-l" data-kb-down="#key-backspace">_</div>
+			<div id="key-shift" class="keyboard-key" data-kb-left="#key-lodash" data-kb-up="#key-dash" data-kb-down="#key-backspace"><i class="fas fa-arrow-up"></i></div>
+			
+			<div class="keyboard-key blank"></div>
+			<div class="keyboard-key blank"></div>
+			<div class="keyboard-key blank"></div>
+			<div id="key-space" data-key=" " class="keyboard-key spacebar" data-kb-right="#key-backspace" data-kb-up="#key-b" data-kb-down="#key-return">Space</div>
+			<div class="keyboard-key blank"></div>
+			<div id="key-backspace" class="keyboard-key backspace" data-kb-left="#key-space" data-kb-up="#key-shift" data-kb-down="#key-return"><i class="fas fa-backspace"></i></div>
+			
+			<div class="keyboard-key blank"></div>
+			<div class="keyboard-key blank"></div>
+			<div class="keyboard-key blank"></div>
+			<div class="keyboard-key blank"></div>
+			<div class="keyboard-key blank"></div>
+			<div class="keyboard-key blank"></div>
+			<div class="keyboard-key blank"></div>
+			<div class="keyboard-key blank"></div>
+			<div id="key-return" class="keyboard-key enter" data-kb-left="#key-space" data-kb-up="#key-backspace"><i class="fas fa-flip-vertical fa-reply"></i></div>
+		</div>
+	</div>
+
 	<template template="search-suggestion">
 		<div class="search-suggestion">
 			<div class="body">
@@ -341,24 +412,11 @@
 		</div>
 	</template>
 
-	<template template="carousel-item">
-		<div class="carousel-item">
-			<img src="" alt="" class="backdrop">
-			<div class="metadata">
-				<h1 class="title"></h1>
-				<p class="description"></p>
-				<div class="buttons">
-					<button class="watch-now">Watch</button>
-				</div>
-			</div>
-		</div>
-	</template>
-
 	<template template="media">
 		<div
 			data-kb-right="nextElementSibling"
 			data-kb-left="previousElementSibling"
-			class="media">
+			class="media kb-selectable">
 			<img src="" alt="" class="poster">
 		</div>
 	</template>

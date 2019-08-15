@@ -1,7 +1,6 @@
 /* eslint-env browser */
 /*
 	global
-		HOME_CAROUSEL_LIST
 		HOME_MOVIE_LIST
 		HOME_TVSHOW_LIST
 		MOVIE_DETAILS_PAGE_WATCH_NOW
@@ -46,6 +45,7 @@
 
 const {ipcRenderer, remote} = require('electron');
 const path = require('path');
+const async = require('async');
 const appPath = remote.app.getAppPath();
 const imageCache = require(path.resolve(appPath, './image_cache'));
 
@@ -57,6 +57,16 @@ const castListObserver = new IntersectionObserver(castListObserverCallback, {
 	rootMargin: '0px',
 	threshold: 1.0
 });
+
+async function bulkCacheImages(images) {
+	return new Promise(resolve => {
+		async.each(images, (image, callback) => {
+			imageCache(image, () => {
+				callback(); // imageCache returns the image path in the callback. If this is passed directly to async.each then it is treated as an error
+			});
+		}, resolve);
+	});
+}
 
 function loadMovieDetails(id) {
 	if (currentSelectedMediaId !== id) {
@@ -81,6 +91,10 @@ function loadShowDetails(id, init) { // init, for the initial load
 }
 
 function searchMedia() {
+	if (virtualKeyboard.focused) {
+		virtualKeyboard.unfocus();
+	}
+
 	const searchQuery = SEARCH_PAGE_SEARCH_INPUT.value;
 	if (searchQuery.trim() === '') {
 		return;
@@ -150,96 +164,80 @@ ipcRenderer.on('initialized', () => {
 	ipcRenderer.send('ready');
 });
 
-ipcRenderer.on('update-home-carousel', async (event, movies) => {
-	HOME_CAROUSEL_LIST.innerHTML = '';
+ipcRenderer.on('update-home-page', async (event, data) => {
+	await bulkCacheImages(data.images);
 
-	for (const movie of movies) {
-		const template = document.querySelector('[template="carousel-item"]').content.firstElementChild.cloneNode(true);
-		template.classList.add('hide');
-		
-		const backdrop = template.querySelector('.backdrop');
-		const metadata = template.querySelector('.metadata');
-		const title = metadata.querySelector('.title');
-		const description = metadata.querySelector('.description');
-		const watchButton = metadata.querySelector('.buttons .watch-now');
-
-		backdrop.src = await imageCache(`https://image.tmdb.org/t/p/original${movie.images.backdrops[0].file_path}`);
-		title.innerHTML = movie.title;
-		description.innerHTML = movie.overview;
-
-		addEvent(watchButton, 'click', () => {
-			// Load stream list immediately
-		});
-
-		HOME_CAROUSEL_LIST.appendChild(template);
-	}
-
-	document.querySelector('.carousel-item').classList.remove('hide'); // For now, only show the first one
-});
-
-ipcRenderer.on('update-home-popular-movies', async (event, data) => {
+	HOME_TVSHOW_LIST.innerHTML = '';
 	HOME_MOVIE_LIST.innerHTML = '';
 
-	const movies = data.items;
+	const {movies, shows} = data;
 
-	for (const movie of movies) {
-		const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
-		template.dataset.kbUp ='#top-navigation ol li';
-		template.dataset.kbDown ='#home-page-popular-tvshows .media';
+	async.parallel([
+		callback => {
+			for (const show of shows.items) {
+				const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
+				template.dataset.kbUp ='#home-page-popular-movies .media';
+				
+				const poster = template.querySelector('.poster');
+				if (show.poster) {
+					poster.src = imageCache(`https://images.justwatch.com${show.poster.replace('{profile}', 's166')}`);
+				} // needs an else
 		
-		const poster = template.querySelector('.poster');
-		if (movie.poster) {
-			poster.src = await imageCache(`https://images.justwatch.com${movie.poster.replace('{profile}', 's166')}`);
-		} // needs an else
-
-		addEvent(template, 'click', () => {
-			loadMovieDetails(movie.id);
-		});
-
-		HOME_MOVIE_LIST.appendChild(template);
-	}
-});
-
-ipcRenderer.on('update-home-popular-tvshows', async (event, data) => {
-	HOME_TVSHOW_LIST.innerHTML = '';
-
-	const shows = data.items;
-
-	for (const show of shows) {
-		const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
-		template.dataset.kbUp ='#home-page-popular-movies .media';
+				addEvent(template, 'click', () => {
+					loadShowDetails(show.id, true);
+				});
 		
-		const poster = template.querySelector('.poster');
-		if (show.poster) {
-			poster.src = await imageCache(`https://images.justwatch.com${show.poster.replace('{profile}', 's166')}`);
-		} // needs an else
+				HOME_TVSHOW_LIST.appendChild(template);
+			}
 
-		addEvent(template, 'click', () => {
-			loadShowDetails(show.id, true);
-		});
+			callback();
+		},
+		callback => {
+			for (const movie of movies.items) {
+				const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
+				template.dataset.kbUp ='#top-navigation ol li';
+				template.dataset.kbDown ='#home-page-popular-tvshows .media';
+				
+				const poster = template.querySelector('.poster');
+				if (movie.poster) {
+					poster.src = imageCache(`https://images.justwatch.com${movie.poster.replace('{profile}', 's166')}`);
+				} // needs an else
+		
+				addEvent(template, 'click', () => {
+					loadMovieDetails(movie.id);
+				});
+		
+				HOME_MOVIE_LIST.appendChild(template);
+			}
 
-		HOME_TVSHOW_LIST.appendChild(template);
-	}
-
-	hideLoader();
-	allowBodyScroll();
+			callback();
+		},
+	], () => {
+		hideLoader();
+		allowBodyScroll();
+	});
 });
 
 ipcRenderer.on('update-movie-details', async (event, data) => {
+
+	await bulkCacheImages(data.images);
+
 	MOVIE_DETAILS_PAGE_WATCH_NOW.onclick = function() {
 		showLoader();
 		scrapeStreams(data.imdb_id);
 	};
 
-	setPlayerBackground(await imageCache(data.images.backdrop));
+	const backdrop = await imageCache(data.backdrop);
 
-	MOVIE_DETAILS_PAGE_BACKDROP.src = await imageCache(data.images.backdrop);
+	setPlayerBackground(backdrop);
+
+	MOVIE_DETAILS_PAGE_BACKDROP.src = backdrop;
 	MOVIE_DETAILS_PAGE_TITLE.innerHTML = data.title;
 	MOVIE_DETAILS_PAGE_AGE_RATING.innerHTML = data.age_rating;
 	MOVIE_DETAILS_PAGE_RUNTIME.innerHTML = `${Math.floor(data.runtime / 60)}h${data.runtime % 60}m`;
 	MOVIE_DETAILS_PAGE_GENRES.innerHTML = data.genres.join(', ');
 	MOVIE_DETAILS_PAGE_RELEASE_YEAR.innerHTML = data.release_year;
-	MOVIE_DETAILS_PAGE_POSTER.src = await imageCache(data.images.poster);
+	MOVIE_DETAILS_PAGE_POSTER.src = await imageCache(data.poster);
 	MOVIE_DETAILS_PAGE_SYNOPSIS.innerHTML = data.synopsis;
 
 	MOVIE_DETAILS_PAGE_CAST.innerHTML = '';
@@ -266,6 +264,9 @@ ipcRenderer.on('update-movie-details', async (event, data) => {
 
 	for (const related of data.related_media.items) {
 		const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
+		template.classList.add('related');
+
+		template.dataset.kbUp = '#watch-now';
 		
 		const poster = template.querySelector('.poster');
 		if (related.poster) {
@@ -293,14 +294,18 @@ ipcRenderer.on('update-movie-details', async (event, data) => {
 });
 
 ipcRenderer.on('update-show-details', async (event, data) => {
-	setPlayerBackground(await imageCache(data.images.backdrop));
+	await bulkCacheImages(data.images);
 
-	SHOW_DETAILS_PAGE_BACKDROP.src = await imageCache(data.images.backdrop);
+	const backdrop = await imageCache(data.backdrop);
+
+	setPlayerBackground(backdrop);
+
+	SHOW_DETAILS_PAGE_BACKDROP.src = backdrop;
 	SHOW_DETAILS_PAGE_TITLE.innerHTML = data.title;
 	SHOW_DETAILS_PAGE_AGE_RATING.innerHTML = data.age_rating;
 	SHOW_DETAILS_PAGE_GENRES.innerHTML = data.genres.join(', ');
 	SHOW_DETAILS_PAGE_RELEASE_YEAR.innerHTML = data.release_year;
-	SHOW_DETAILS_PAGE_POSTER.src = await imageCache(data.images.poster);
+	SHOW_DETAILS_PAGE_POSTER.src = await imageCache(data.poster);
 	SHOW_DETAILS_PAGE_SYNOPSIS.innerHTML = data.synopsis;
 
 	SHOW_DETAILS_PAGE_RELATED.innerHTML = '';
@@ -309,10 +314,17 @@ ipcRenderer.on('update-show-details', async (event, data) => {
 
 	for (const season of data.seasons) {
 		const option = document.createElement('span');
+
 		
 		addEvent(option, 'click', () => {
 			loadShowDetails(season.id);
 		});
+
+		option.dataset.kbUp = 'previousElementSibling';
+		option.dataset.kbDown = 'nextElementSibling';
+		if (data.seasons.indexOf(season) === 0) {
+			option.dataset.kbUp = `.dropdown-select[data-dropdown-id="${SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-select').dataset.dropdownId}"]`;
+		}
 
 		option.classList.add('option');
 		option.dataset.index = season.season_number-1;
@@ -329,6 +341,13 @@ ipcRenderer.on('update-show-details', async (event, data) => {
 
 	for (const episode of data.episodes) {
 		const template = document.querySelector('[template="episode"]').content.firstElementChild.cloneNode(true);
+
+		template.dataset.kbUp = '#show-details-page .dropdown-select';
+		template.dataset.kbLeft = 'previousElementSibling';
+		template.dataset.kbRight = 'nextElementSibling';
+		if (data.episodes.indexOf(episode) === 0) {
+			template.dataset.kbLeft = '#show-details-page .dropdown-select';
+		}
 		
 		const screenshot = template.querySelector('.screenshot');
 		const title = template.querySelector('.title');
@@ -349,7 +368,11 @@ ipcRenderer.on('update-show-details', async (event, data) => {
 
 	for (const related of data.related_media.items) {
 		const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);
-		
+		template.classList.add('related');
+
+		template.dataset.kbDown = '#show-details-page .episodes .body .episode';
+		template.dataset.kbUp ='#top-navigation ol li';
+
 		const poster = template.querySelector('.poster');
 		if (related.poster) {
 			poster.src = await imageCache(`https://images.justwatch.com${related.poster.replace('{profile}', 's166')}`);
@@ -368,15 +391,21 @@ ipcRenderer.on('update-show-details', async (event, data) => {
 		SHOW_DETAILS_PAGE_RELATED.appendChild(template);
 	}
 
+	currentSelectedItem.classList.remove('kb-navigation-selected');
+	currentSelectedItem = SHOW_DETAILS_PAGE_SEASON_SELECTION.querySelector('.dropdown-select');
+	currentSelectedItem.classList.add('kb-navigation-selected');
+
 	loadShowDetailsPage();
 	hideLoader();
 	allowBodyScroll();
 });
 
-ipcRenderer.on('search-results', async (event, results) => {
+ipcRenderer.on('search-results', async (event, data) => {
+	await bulkCacheImages(data.images);
+
 	SEARCH_PAGE_MEDIA_LIST.innerHTML = '';
 
-	const media = results.items;
+	const media = data.results.items;
 
 	for (const item of media) {
 		const template = document.querySelector('[template="media"]').content.firstElementChild.cloneNode(true);

@@ -5,6 +5,7 @@ process.on('unhandledRejection', (reason, p) => {
 const { BrowserWindow, app, ipcMain, globalShortcut } = require('electron');
 const log = require('electron-log');
 const fs = require('fs-extra');
+const async = require('async');
 const got = require('got');
 const path = require('path');
 const url = require('url');
@@ -49,10 +50,9 @@ const JUSTWATCH_GENRES = [
 	'Western'
 ];
 
-fs.ensureDirSync(`${DATA_ROOT}/imageCache`);
-fs.ensureFileSync(`${DATA_ROOT}/series-data.json`); // Seems to be required for Mac
-const seriesDataStorage = low(new FileSync(`${DATA_ROOT}/series-data.json`));
 let ApplicationWindow;
+let seriesDataStorage;
+let configStorage;
 
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {
@@ -108,21 +108,49 @@ ipcMain.on('initialize', async event => {
 });
 
 ipcMain.on('ready', async event => {
-	let trendingMovies = await trakt.trendingMovies();
+	//let trendingMovies = await trakt.trendingMovies();
 	const popularMovies = await justwatch.getPopularMovies();
 	const popularTVShows = await justwatch.getPopularTVShows();
 
-	if (trendingMovies) {
+	/*if (trendingMovies) { // Sometimes this dies?
 		trendingMovies = await Promise.all(trendingMovies.map(async({ movie }) => {
 			movie.images = await tmdb.movieImages(movie.ids.imdb);
 			return movie;
 		}));
+	}*/
 
-		event.sender.send('update-home-carousel', trendingMovies);
-	}
+	const images = [];
 
-	event.sender.send('update-home-popular-movies', popularMovies);
-	event.sender.send('update-home-popular-tvshows', popularTVShows);
+	async.parallel([
+		/*callback => {
+			if (trendingMovies) {
+				for (const {images: {backdrops}} of trendingMovies) {
+					images.push(`https://image.tmdb.org/t/p/original${backdrops[0].file_path}`);
+				}
+			}
+			
+			callback();
+		},*/
+		callback => {
+			for (const {poster} of popularMovies.items) {
+				images.push(`https://images.justwatch.com${poster.replace('{profile}', 's166')}`);
+			}
+			callback();
+		},
+		callback => {
+			for (const {poster} of popularTVShows.items) {
+				images.push(`https://images.justwatch.com${poster.replace('{profile}', 's166')}`);
+			}
+			callback();
+		},
+	], () => {
+		event.sender.send('update-home-page', {
+			//trendingMovies: trendingMovies || [],
+			movies: popularMovies,
+			shows: popularTVShows,
+			images
+		});
+	});
 });
 
 ipcMain.on('load-movie-details', async(event, id) => {
@@ -132,16 +160,34 @@ ipcMain.on('load-movie-details', async(event, id) => {
 
 	const imdbId = (details.external_ids.find(id => id.provider === 'imdb')).external_id;
 
-	const cast = (await imdb.cast(imdbId))
-		.map(castMember => {
-			const metadata = {
-				name: castMember.name,
-				characters: castMember.characters,
-			};
-			if (castMember.image) metadata.profile = castMember.image.url;
+	let cast = (await imdb.cast(imdbId)) || [];
 
-			return metadata;
-		});
+	cast = cast.map(castMember => {
+		const metadata = {
+			name: castMember.name,
+			characters: castMember.characters,
+		};
+		if (castMember.image) metadata.profile = castMember.image.url;
+
+		return metadata;
+	});
+
+	const images = [ // Images to bulk-cache
+		`https://images.justwatch.com${details.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
+		`https://images.justwatch.com${details.poster.replace('{profile}', 's592')}`
+	];
+
+	for (const media of related.items) {
+		images.push(`https://images.justwatch.com${media.poster.replace('{profile}', 's166')}`);
+	}
+
+
+	const castSlice = cast.slice(0, 10);
+	for (const castMember of castSlice) {
+		if (castMember.profile) {
+			images.push(castMember.profile);
+		}
+	}
 
 	event.sender.send('update-movie-details', {
 		id,
@@ -156,10 +202,9 @@ ipcMain.on('load-movie-details', async(event, id) => {
 		cast,
 		videos: details.clips,
 		related_media: related,
-		images: {
-			backdrop: `https://images.justwatch.com${details.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
-			poster: `https://images.justwatch.com${details.poster.replace('{profile}', 's592')}`
-		}
+		backdrop: `https://images.justwatch.com${details.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
+		poster: `https://images.justwatch.com${details.poster.replace('{profile}', 's592')}`,
+		images
 	});
 });
 
@@ -223,7 +268,7 @@ ipcMain.on('load-show-details', async(event, {id, init}) => {
 		title,
 		episode_number
 	}));
-
+	
 	const extendedEpisodeData = await got.post('https://www.captainwatch.com/tvapi/episodes', {
 		throwHttpErrors: false,
 		headers: {
@@ -243,6 +288,19 @@ ipcMain.on('load-show-details', async(event, {id, init}) => {
 
 	const related = await justwatch.relatedMedia(showDetails.id, 'show');
 
+	const images = [ // Images to bulk-cache
+		`https://images.justwatch.com${showDetails.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
+		`https://images.justwatch.com${seasonDetails.poster.replace('{profile}', 's592')}`
+	];
+
+	for (const media of related.items) {
+		images.push(`https://images.justwatch.com${media.poster.replace('{profile}', 's166')}`);
+	}
+
+	for (const episode of episodes) {
+		images.push(episode.screenshot);
+	}
+
 	event.sender.send('update-show-details', {
 		id,
 		imdb_id: imdbId,
@@ -257,10 +315,9 @@ ipcMain.on('load-show-details', async(event, {id, init}) => {
 		seasons: showDetails.seasons,
 		episodes,
 		related_media: related,
-		images: {
-			backdrop: `https://images.justwatch.com${showDetails.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
-			poster: `https://images.justwatch.com${seasonDetails.poster.replace('{profile}', 's592')}`
-		}
+		backdrop: `https://images.justwatch.com${showDetails.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
+		poster: `https://images.justwatch.com${seasonDetails.poster.replace('{profile}', 's592')}`,
+		images
 	});
 });
 
@@ -279,7 +336,18 @@ ipcMain.on('search-media', async(event, {search_query, filters}) => {
 			break;
 	}
 
-	event.sender.send('search-results', results);
+	const images = [];
+
+	for (const item of results.items) {
+		if (item.poster) {
+			images.push(`https://images.justwatch.com${item.poster.replace('{profile}', 's166')}`);
+		}
+	}
+
+	event.sender.send('search-results', {
+		results,
+		images
+	});
 });
 
 ipcMain.on('scrape-streams', async(event, { id, season, episode }) => {
@@ -316,6 +384,12 @@ ipcMain.on('scrape-streams', async(event, { id, season, episode }) => {
 });
 
 async function initialize() {
+	fs.ensureDirSync(`${DATA_ROOT}/imageCache`);
+	fs.ensureFileSync(`${DATA_ROOT}/series-data.json`);
+	fs.ensureFileSync(`${DATA_ROOT}/config.json`);
+	seriesDataStorage = low(new FileSync(`${DATA_ROOT}/series-data.json`));
+	configStorage = low(new FileSync(`${DATA_ROOT}/config.json`));
+
 	await imdb.temporaryCredentials();
 
 	seriesDataStorage.defaults({}).write();

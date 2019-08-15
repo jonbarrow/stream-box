@@ -5,44 +5,57 @@
 		loadHomePage
 */
 
-//const navigationSelector = document.getElementById('navigation-selector');
-//const currentSelectedSection = document.querySelector('.kb-naviation-section');
-const nonLetterNumberKeys = ['Home', 'Enter', 'ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'BrowserBack', 'MediaPlayPause'];
-let currentSelectedItem = document.querySelector('.kb-naviation-selected');
+const keybinds = require('../keybinds.json');
+const keybindsKeys = Object.values(keybinds);
+const keybindsBinds = Object.keys(keybinds);
+let currentSelectedItem = document.querySelector('.kb-navigation-selected');
 let textInputSelected = false;
 
 function navigationKeyHandle(event) {
 	const { key } = event;
 
-	if (textInputSelected && !nonLetterNumberKeys.includes(key)) {
+	if (!keybindsKeys.includes(key)) {
+		console.log(key);
+		return;
+	}
+
+	const bind = keybindsBinds[keybindsKeys.indexOf(key)];
+
+	if (textInputSelected && key === 'Enter') {
 		return;
 	}
 
 	let newSelectedItemSelector;
 
-	switch (key) {
-		case 'Home':
+	switch (bind) {
+		case 'goHome':
 			newSelectedItemSelector = '[data-navigation="home-page"]';
 			loadHomePage();
 			break;
-		case 'Enter':
+		case 'select':
 			currentSelectedItem.click();
 			break;
-		case 'ArrowRight':
+		case 'back':
+			if (virtualKeyboard.focused) {
+				virtualKeyboard.delete();
+			}
+			break;
+		case 'moveRight':
 			newSelectedItemSelector = currentSelectedItem.dataset.kbRight;
 			break;
-		case 'ArrowLeft':
+		case 'moveLeft':
 			newSelectedItemSelector = currentSelectedItem.dataset.kbLeft;
 			break;
-		case 'ArrowDown':
+		case 'moveDown':
 			newSelectedItemSelector = currentSelectedItem.dataset.kbDown;
 			break;
-		case 'ArrowUp':
+		case 'moveUp':
 			newSelectedItemSelector = currentSelectedItem.dataset.kbUp;
 			break;
 	
 		default:
-			break;
+			console.log('Unhandled bind', bind);
+			return;
 	}
 
 	if (newSelectedItemSelector) {
@@ -57,8 +70,8 @@ function navigationKeyHandle(event) {
 		}
 
 		if (newSelectedItem) {
-			currentSelectedItem.classList.remove('kb-naviation-selected');
-			newSelectedItem.classList.add('kb-naviation-selected');
+			currentSelectedItem.classList.remove('kb-navigation-selected');
+			newSelectedItem.classList.add('kb-navigation-selected');
 	
 			currentSelectedItem = newSelectedItem;
 
@@ -67,29 +80,14 @@ function navigationKeyHandle(event) {
 				block: 'center',
 				inline: 'center'
 			});
-
-			//positionSelector();
-			
 		}
 	}
 
 	event.preventDefault();
 }
 
-/*
-function positionSelector() {
-	const { top, left } = currentSelectedItem.getBoundingClientRect();
-
-	navigationSelector.style.top = (top - 5) + 'px';
-	navigationSelector.style.left = (left - 5) + 'px';
-	navigationSelector.style.width = (currentSelectedItem.offsetWidth + 10) + 'px';
-	navigationSelector.style.height = (currentSelectedItem.offsetHeight + 10) + 'px';
-}
-*/
-
 // Get around eslint no-unused-vars, and make 100% sure the variables are global
 !function() {
-	//positionSelector();
 
 	this.navigationKeyHandle = navigationKeyHandle;
 
@@ -105,29 +103,3 @@ function positionSelector() {
 		}
 	});
 }();
-
-/*
-function nextSelectableElementRight() {
-	const selectableElements = currentSelectedSection.querySelectorAll('[data-keyboard-selectable]');
-	if (!selectableElements || selectableElements.length <= 0) {
-		return null;
-	}
-
-	const indexOfSelectedElement = [...selectableElements].indexOf(currentSelectedItem);
-	const indexOfNextSelectableElement = indexOfSelectedElement+1;
-	
-	return selectableElements[indexOfNextSelectableElement];
-}
-
-function nextSelectableElementLeft() {
-	const selectableElements = currentSelectedSection.querySelectorAll('[data-keyboard-selectable]');
-	if (!selectableElements || selectableElements.length <= 0) {
-		return null;
-	}
-
-	const indexOfSelectedElement = [...selectableElements].indexOf(currentSelectedItem);
-	const indexOfNextSelectableElement = indexOfSelectedElement-1;
-	
-	return selectableElements[indexOfNextSelectableElement];
-}
-*///

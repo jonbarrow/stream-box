@@ -8,5 +8,6 @@ module.exports = {
 	primewire: require('./primewire.li'),
 	putlockertv: require('./putlockertv.biz'),
 	qazwsxedcrfvtgb: require('./qazwsxedcrfvtgb.info'),
+	vidsrc: require('./vidsrc.me'),
 	watchseries: require('./watchseries.to'),
 };

@@ -12,20 +12,50 @@
 
 const log = require('electron-log');
 
-window.addEventListener('error', ({error: {stack}}) => {
-	log.error(stack);
+window.addEventListener('error', error => {
+	if (!error) {
+		console.log('what?');
+	} else if (error.stack) {
+		log.error(error.stack);
+	} else {
+		log.error(error);
+	}
 });
 
-window.addEventListener('unhandledrejection', ({error: {stack}}) => {
-	log.error(stack);
+window.addEventListener('unhandledrejection', ({error}) => {
+	if (!error) {
+		console.log('what?');
+	} else if (error.stack) {
+		log.error(error.stack);
+	} else {
+		log.error(error);
+	}
 });
 
 // Misc globals
 const LOADER = document.getElementById('loader');
 let CURRENT_LOADED_PAGE = 'home-page';
+const KEYBOARD_ELEMENT = document.querySelector('.keyboard');
+
+const virtualKeyboard = new VirtualKeyboard(KEYBOARD_ELEMENT);
+
+virtualKeyboard.on('return', () => {
+	currentSelectedItem.classList.remove('kb-navigation-selected');
+	currentSelectedItem = SEARCH_PAGE_SEARCH_WRAPPER;
+	currentSelectedItem.classList.add('kb-navigation-selected');
+
+	searchMedia();
+});
+
+virtualKeyboard.on('close', () => {
+	currentSelectedItem.classList.remove('kb-navigation-selected');
+	currentSelectedItem = SEARCH_PAGE_SEARCH_WRAPPER;
+	currentSelectedItem.classList.add('kb-navigation-selected');
+});
 
 // Navigation globals
 const NAV_ALL = document.querySelectorAll('[data-navigation]');
+const NAV_HOME =  document.querySelector('[data-navigation="home-page"]');
 
 // Movie Details page globals
 const MOVIE_DETAILS_PAGE = document.getElementById('movie-details-page');
@@ -56,13 +86,13 @@ const SHOW_DETAILS_PAGE_EPISODES = SHOW_DETAILS_PAGE.querySelector('.content .ep
 const SHOW_DETAILS_PAGE_SEASON_SELECTION = SHOW_DETAILS_PAGE.querySelector('.content .season-selection');
 
 // Home page globals
-const HOME_CAROUSEL_LIST = document.querySelector('#home-page .carousel');
 const HOME_MOVIE_LIST = document.querySelector('#home-page-popular-movies .body');
 const HOME_TVSHOW_LIST = document.querySelector('#home-page-popular-tvshows .body');
 
 // Search page globals
 const SEARCH_PAGE = document.getElementById('search-page');
-const SEARCH_PAGE_SEARCH_INPUT= SEARCH_PAGE.querySelector('#search-input');
+const SEARCH_PAGE_SEARCH_WRAPPER = document.getElementById('search-container');
+const SEARCH_PAGE_SEARCH_INPUT= document.getElementById('search-input');
 const SEARCH_PAGE_MEDIA_LIST = SEARCH_PAGE.querySelector('.list');
 
 function addEvent(object, event, func) {
@@ -107,8 +137,22 @@ function loadPage(id) {
 		NAV_ALL.forEach(element => {
 			element.dataset.kbDown = '#search-container';
 		});
+	}
 
-		SEARCH_PAGE_SEARCH_INPUT.focus();
+	if (id === 'movie-details-page') {
+		NAV_ALL.forEach(element => {
+			element.dataset.kbDown = '#watch-now';
+		});
+
+		currentSelectedItem.classList.remove('kb-navigation-selected');
+		currentSelectedItem = NAV_HOME;
+		currentSelectedItem.classList.add('kb-navigation-selected');
+	}
+
+	if (id === 'show-details-page') {
+		NAV_ALL.forEach(element => {
+			element.dataset.kbDown = '#show-details-page .dropdown-select';
+		});
 	}
 }
 
@@ -153,7 +197,6 @@ function allowBodyScroll() {
 	document.body.classList.remove('noscroll');
 }
 
-
 const toggle = document.getElementsByClassName('stream-site');
 
 for (let i = 0; i < toggle.length; i++) {
@@ -170,10 +213,26 @@ for (let i = 0; i < toggle.length; i++) {
 document.addEventListener('keydown', event => {
 	if (isPi() && omxplayer.isPlaying()) {
 		omxplayerKeyHandle(event);
-	} else if (player.playing) {
+	} else if (playerOpen()) {
 		plyrKeyHandle(event);
 	} else {
 		navigationKeyHandle(event);	
+	}
+});
+
+document.addEventListener('click', ({target}) => {
+	if (['text'].includes(target.getAttribute('type'))) {
+		virtualKeyboard.focus(target);
+	}
+});
+
+SEARCH_PAGE_SEARCH_WRAPPER.addEventListener('click', () => {
+	if (!virtualKeyboard.focused) {
+		virtualKeyboard.focus(SEARCH_PAGE_SEARCH_INPUT);
+
+		currentSelectedItem = document.querySelector('#key-1');
+		SEARCH_PAGE_SEARCH_WRAPPER.classList.remove('kb-navigation-selected');
+		currentSelectedItem.classList.add('kb-navigation-selected');
 	}
 });
 
@@ -203,7 +262,6 @@ document.addEventListener('keydown', event => {
 	this.SHOW_DETAILS_PAGE_RELATED = SHOW_DETAILS_PAGE_RELATED;
 	this.SHOW_DETAILS_PAGE_EPISODES = SHOW_DETAILS_PAGE_EPISODES;
 	this.SHOW_DETAILS_PAGE_SEASON_SELECTION = SHOW_DETAILS_PAGE_SEASON_SELECTION;
-	this.HOME_CAROUSEL_LIST = HOME_CAROUSEL_LIST;
 	this.HOME_MOVIE_LIST = HOME_MOVIE_LIST;
 	this.HOME_TVSHOW_LIST = HOME_TVSHOW_LIST;
 	this.SEARCH_PAGE_SEARCH_INPUT = SEARCH_PAGE_SEARCH_INPUT;

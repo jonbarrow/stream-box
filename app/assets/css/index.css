@@ -47,3 +47,7 @@ html, body, #app {
 	position: fixed; /*stops the non-visible elements from affecting scroll of visible element*/
 	visibility: hidden;
 }
+
+.hidden {
+	display: none;
+}

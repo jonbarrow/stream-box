@@ -209,6 +209,19 @@ async function scrapeEmbed(embed) {
 			}
 			break;
 
+		case 'vidsource.me':
+			const vidsource = await hostScrapers.VidSource.scrape(embed);
+			if (vidsource) {
+				for (const stream of vidsource) {
+					streams.push({
+						file_host: 'VidSource',
+						file: stream.file,
+						quality: stream.label
+					});
+				}
+			}
+			break;
+
 		case 'vev.io': // captcha
 		case 'powvideo.net': // captcha
 		case 'gorillavid.in': // dead

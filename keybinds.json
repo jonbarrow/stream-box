@@ -1,0 +1,11 @@
+{
+	"moveRight": "ArrowRight",
+	"moveLeft": "ArrowLeft",
+	"moveDown": "ArrowDown",
+	"moveUp": "ArrowUp",
+	"select": "Enter",
+	"goHome": "Home",
+	"back": "BrowserBack",
+	"toggleMediaPlay" : "MediaPlayPause",
+	"stopMedia" : "BrowserStop"
+}

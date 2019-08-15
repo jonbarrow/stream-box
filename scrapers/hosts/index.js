@@ -21,4 +21,5 @@ module.exports = {
 	FEmbed: require('./fembed'),
 	VidLox: require('./vidlox'),
 	OnlyStream: require('./onlystream'),
+	VidSource: require('./vidsource'),
 };

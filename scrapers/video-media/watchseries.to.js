@@ -18,7 +18,7 @@ class WatchSeries extends EventEmitter {
 
 		const url = `${URL_BASE}/${traktDetails.ids.slug.replace(/-/g, '_')}_s${season}_e${episode}.html`;
 
-		const {body} = await got(url);
+		const {body} = await got(url, {throwHttpErrors: false});
 
 		const dom = new JSDOM(body);
 

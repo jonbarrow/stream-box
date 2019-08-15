@@ -25,7 +25,9 @@ class PutLockerTv extends EventEmitter {
 			url = `${URL_BASE}/film/${traktDetails.ids.imdb}`;
 		}
 	
-		let response = await got(url);
+		let response = await got(url, {
+			throwHttpErrors: false
+		});
 		const body = response.body;
 	
 		const movieIdData = movieIdRegex.exec(body);

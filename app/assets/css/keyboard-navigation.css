@@ -1,9 +1,11 @@
-.kb-naviation-selected {
-	border: solid 2px white;
+.kb-navigation-selected {
+	box-shadow: 0 0 0 2px white;
+}
+
+.kb-navigation-selected:not(.keyboard-key) {
 	border-radius: 12px;
 }
 
-.media.kb-naviation-selected {
-	box-shadow: 0px 11px 25px 1px rgba(0, 0, 0, 0.50);
+.media.kb-navigation-selected:not(.related) {
 	transform: scale(1.2);
 }
