@@ -14,8 +14,6 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const {ScrapeMovieError, ScrapeTvShowError} = require('./errors');
 const { justwatch } = require('./util');
-const IMDBClient = require('./util/imdb');
-const imdb = new IMDBClient();
 
 process.setUncaughtExceptionCaptureCallback(({stack}) => {
 	log.error(`${stack}\n`);
@@ -145,18 +143,6 @@ ipcMain.on('load-movie-details', async(event, id) => {
 
 	const imdbId = (details.external_ids.find(id => id.provider === 'imdb')).external_id;
 
-	let cast = (await imdb.cast(imdbId)) || [];
-
-	cast = cast.map(castMember => {
-		const metadata = {
-			name: castMember.name,
-			characters: castMember.characters,
-		};
-		if (castMember.image) metadata.profile = castMember.image.url;
-
-		return metadata;
-	});
-
 	const images = [ // Images to bulk-cache
 		`https://images.justwatch.com${details.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
 		`https://images.justwatch.com${details.poster.replace('{profile}', 's592')}`
@@ -164,14 +150,6 @@ ipcMain.on('load-movie-details', async(event, id) => {
 
 	for (const media of related.items) {
 		images.push(`https://images.justwatch.com${media.poster.replace('{profile}', 's166')}`);
-	}
-
-
-	const castSlice = cast.slice(0, 10);
-	for (const castMember of castSlice) {
-		if (castMember.profile) {
-			images.push(castMember.profile);
-		}
 	}
 
 	event.sender.send('update-movie-details', {
@@ -184,7 +162,6 @@ ipcMain.on('load-movie-details', async(event, id) => {
 		genres: details.genre_ids.map(id => JUSTWATCH_GENRES[id - 1]),
 		release_year: details.original_release_year,
 		synopsis: details.short_description,
-		cast,
 		videos: details.clips,
 		related_media: related,
 		backdrop: `https://images.justwatch.com${details.backdrops[0].backdrop_url.replace('{profile}', 's1440')}`,
@@ -358,8 +335,6 @@ async function initialize() {
 	fs.ensureFileSync(`${DATA_ROOT}/series-data.json`);
 	fs.ensureFileSync(`${DATA_ROOT}/config.json`);
 	seriesDataStorage = low(new FileSync(`${DATA_ROOT}/series-data.json`));
-
-	await imdb.temporaryCredentials();
 
 	seriesDataStorage.defaults({}).write();
 }
