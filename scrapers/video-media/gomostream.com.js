@@ -53,6 +53,7 @@ class GomoStream extends EventEmitter {
 				.then(streams => {
 					if (streams) {
 						for (const stream of streams) {
+							stream.aggregator = 'gomostream';
 							this.emit('stream', stream);
 						}
 					}

@@ -66,6 +66,7 @@ class GoMovies extends EventEmitter {
 						.then(openload => {
 							if (openload) {
 								this.emit('stream', {
+									aggregator: 'gomovies',
 									file_host: 'OpenLoad',
 									file: openload
 								});
@@ -76,6 +77,7 @@ class GoMovies extends EventEmitter {
 				} else {
 					for (const stream of body) {
 						this.emit('stream', {
+							aggregator: 'gomovies',
 							file_host: 'LoadShare', // Seems constant
 							file: stream.src,
 							quality: (stream.label ? stream.label : null)

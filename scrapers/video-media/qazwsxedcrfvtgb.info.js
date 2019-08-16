@@ -33,6 +33,7 @@ class qazwsxedcrfvtgb extends EventEmitter {
 					.then(streams => {
 						if (streams) {
 							for (const stream of streams) {
+								stream.aggregator = 'qazwsxedcrfvtgb';
 								this.emit('stream', stream);
 							}
 						}

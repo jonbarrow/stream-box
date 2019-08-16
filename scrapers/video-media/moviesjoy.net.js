@@ -90,6 +90,7 @@ class MoviesJoy extends EventEmitter {
 							.then(streams => {
 								if (streams) {
 									for (const stream of streams) {
+										stream.aggregator = 'moviesjoy';
 										this.emit('stream', stream);
 									}
 								}

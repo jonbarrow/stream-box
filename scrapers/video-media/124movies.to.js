@@ -76,6 +76,7 @@ class OneTwoFourMovies extends EventEmitter {
 					.then(streams => {
 						if (streams) {
 							for (const stream of streams) {
+								stream.aggregator = '124movies';
 								this.emit('stream', stream);
 							}
 						}

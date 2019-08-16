@@ -32,6 +32,7 @@ class WatchSeries extends EventEmitter {
 				.then(streams => {
 					if (streams) {
 						for (const stream of streams) {
+							stream.aggregator = 'watchseries';
 							this.emit('stream', stream);
 						}
 					}

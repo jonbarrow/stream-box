@@ -56,6 +56,7 @@ class ConsistentStream extends EventEmitter {
 			if (server.uses == 'jw') {
 				for (const stream of server.sources) {
 					this.emit('stream', {
+						aggregator: 'Consistent Stream',
 						file_host: 'Consistent Stream',
 						file: stream.src,
 						m3u8: stream.src.includes('api.consistent.stream')

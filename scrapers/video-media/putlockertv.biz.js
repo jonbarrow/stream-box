@@ -71,6 +71,7 @@ class PutLockerTv extends EventEmitter {
 					.then(streams => {
 						if (streams) {
 							for (const stream of streams) {
+								stream.aggregator = 'putlockertv';
 								this.emit('stream', stream);
 							}
 						}

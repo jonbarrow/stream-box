@@ -75,6 +75,7 @@ class F2Movies extends EventEmitter {
 							for (const playlist of body.playlist) {
 								for (const source of playlist.sources) {
 									this.emit('stream', {
+										aggregator: 'f2movies',
 										file_host: 'Google Video', // Seems to always be Google Video?
 										file: source.file,
 										quality: source.label,
@@ -89,6 +90,7 @@ class F2Movies extends EventEmitter {
 							.then(streams => {
 								if (streams) {
 									for (const stream of streams) {
+										stream.aggregator = 'f2movies';
 										this.emit('stream', stream);
 									}
 								}

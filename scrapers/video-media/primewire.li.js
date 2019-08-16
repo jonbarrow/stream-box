@@ -54,6 +54,7 @@ class PrimeWire extends EventEmitter {
 					.then(streams => {
 						if (streams) {
 							for (const stream of streams) {
+								stream.aggregator = 'PrimeWire';
 								this.emit('stream', stream);
 							}
 						}
