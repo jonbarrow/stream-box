@@ -85,7 +85,7 @@ async function scrapeMovie({ids: {slug}}) {
 
 module.exports = scrape;
 
-
+/*
 (async () => {
 	console.time('scraping');
 	const streams = await scrape({
@@ -102,3 +102,4 @@ module.exports = scrape;
 
 	console.log(streams);
 })();
+*/

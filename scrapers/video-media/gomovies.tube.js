@@ -93,6 +93,7 @@ class GoMovies extends EventEmitter {
 
 module.exports = GoMovies;
 
+/*
 (async () => {
 	const scraper = new GoMovies();
 
@@ -116,3 +117,4 @@ module.exports = GoMovies;
 		}
 	}, 'movie');
 })();
+*/
