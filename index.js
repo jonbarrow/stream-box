@@ -79,7 +79,7 @@ app.on('ready', () => {
 	});
 
 	if (!isDev()) {
-		//ApplicationWindow.setMenu(null);
+		ApplicationWindow.setMenu(null);
 	}
 
 	ApplicationWindow.maximize();

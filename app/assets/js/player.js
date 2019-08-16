@@ -189,14 +189,28 @@ function plyrKeyHandle(event) {
 	const bind = keybindsBinds[keybindsKeys.indexOf(key)];
 
 	switch (bind) {
-		case 'goHome':
 		case 'back':
+			player.restart();
+			break;
+		case 'goHome':
 		case 'stopMedia':
 			hidePlayer();
 			break;
 		case 'select':
 		case 'toggleMediaPlay':
 			player.togglePlay();
+			break;
+		case 'moveRight':
+			player.forward();
+			break;
+		case 'moveLeft':
+			player.rewind();
+			break;
+		case 'volumeUp':
+			player.increaseVolume();
+			break;
+		case 'volumeDown':
+			player.decreaseVolume();
 			break;
 		default:
 			break;

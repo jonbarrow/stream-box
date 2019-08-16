@@ -7,5 +7,7 @@
 	"goHome": "Home",
 	"back": "BrowserBack",
 	"toggleMediaPlay" : "MediaPlayPause",
-	"stopMedia" : "BrowserStop"
+	"stopMedia" : "BrowserStop",
+	"volumeUp": "=",
+	"volumeDown": "-"
 }
