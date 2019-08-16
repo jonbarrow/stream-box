@@ -329,6 +329,8 @@ ipcRenderer.on('update-show-details', async (event, data) => {
 		
 				if (episode.screenshot) {
 					screenshot.src = imageCache(episode.screenshot);
+				} else {
+					screenshot.src = backdrop;
 				}
 		
 				title.innerHTML = `E${episode.episode_number} ${episode.title}`;
