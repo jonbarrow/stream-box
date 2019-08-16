@@ -14,7 +14,7 @@ class qazwsxedcrfvtgb extends EventEmitter {
 		super();
 	}
 
-	async scrape(traktDetails) {
+	async scrape(traktDetails, type, season, episode) {
 		const response = await got(`${URL_BASE}/${traktDetails.ids.imdb}`, {
 			json: true
 		});
@@ -25,7 +25,19 @@ class qazwsxedcrfvtgb extends EventEmitter {
 			return this.emit('finished');
 		}
 
-		const urls = data.episodes[0].streams;
+		let urls;
+
+		if (type === 'show') {
+			urls = data.episodes.find(({season: _s, episode: _e}) => (_s === season && _e === episode));
+
+			if (!urls) {
+				return this.emit('finished');
+			}
+			
+			urls = urls.streams;
+		} else {
+			urls = data.episodes[0].streams;
+		}
 
 		async.each(urls, (url, callback) => {
 			if (ACCEPTED_EMBED_IDS.includes(url.type)) {
