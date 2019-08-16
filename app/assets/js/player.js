@@ -96,7 +96,11 @@ function omxplayerKeyHandle(event) {
 
 	event.preventDefault();
 	
-	const {key} = event;
+	let { key } = event;
+
+	if (keybindsKeys.includes(key)) {
+		key = keybindsBinds[keybindsKeys.indexOf(key)];
+	}
 	
 	switch (key) {
 		case '1':
@@ -148,21 +152,31 @@ function omxplayerKeyHandle(event) {
 			omxplayer.increaseSubtitleDelay();
 			break;
 		case 'q':
+		case 'goHome':
+		case 'stopMedia':
 			omxplayer.quit();
 			break;
-		case 'p': case ' ':
+		case 'p':
+		case ' ':
+		case 'select':
+		case 'toggleMediaPlay':
 			omxplayer.togglePlay();
 			break;
 		case '-':
+		case 'volumeDown':
 			omxplayer.decreaseVolume();
 			break;
-		case '+': case '=':
+		case '+':
+		case '=':
+		case 'volumeUp':
 			omxplayer.increaseVolume();
 			break;
 		case 'ArrowLeft':
+		case 'moveLeft':
 			omxplayer.seekBack30();
 			break;
 		case 'ArrowRight':
+		case 'moveRight':
 			omxplayer.seekForward30();
 			break;
 		case 'ArrowDown':
