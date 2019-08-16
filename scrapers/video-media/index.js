@@ -43,6 +43,7 @@ class VideoMediaScraper extends EventEmitter {
 
 module.exports = VideoMediaScraper;
 
+/*
 // Tesing
 (async () => {
 	const streams = [];
@@ -64,6 +65,7 @@ module.exports = VideoMediaScraper;
 	console.time('Scrape Time');
 	scraper.scrape('tt0412142', 6, 8);
 })();
+*/
 
 /*
 async function getStreams(id, season=1, episode=1) {

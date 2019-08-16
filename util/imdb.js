@@ -66,7 +66,6 @@ class IMDBClient {
 	async episodes(id) {
 		const {resource} = await this._apiRequest(API_EPISODES.replace('{id}', id));
 		return resource;
-		//https://api.imdbws.com/title/tt0606030/
 	}
 
 	async credits(id) {

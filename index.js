@@ -60,12 +60,16 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', () => {
-	globalShortcut.register('MediaPlayPause', () => {
+	const MediaPlayPause = globalShortcut.register('MediaPlayPause', () => {
 		ApplicationWindow.webContents.sendInputEvent({
 			type: 'keyDown',
 			keyCode: 'MediaPlayPause'
 		});
 	});
+
+	if (!MediaPlayPause) {
+		log.error('FAILED TO REGISTER MediaPlayPause SHORTCUT');
+	}
 	
 	ApplicationWindow = new BrowserWindow({
 		title: 'Stream Box',
@@ -107,29 +111,12 @@ ipcMain.on('initialize', async event => {
 });
 
 ipcMain.on('ready', async event => {
-	//let trendingMovies = await trakt.trendingMovies();
 	const popularMovies = await justwatch.getPopularMovies();
 	const popularTVShows = await justwatch.getPopularTVShows();
-
-	/*if (trendingMovies) { // Sometimes this dies?
-		trendingMovies = await Promise.all(trendingMovies.map(async({ movie }) => {
-			movie.images = await tmdb.movieImages(movie.ids.imdb);
-			return movie;
-		}));
-	}*/
 
 	const images = [];
 
 	async.parallel([
-		/*callback => {
-			if (trendingMovies) {
-				for (const {images: {backdrops}} of trendingMovies) {
-					images.push(`https://image.tmdb.org/t/p/original${backdrops[0].file_path}`);
-				}
-			}
-			
-			callback();
-		},*/
 		callback => {
 			for (const {poster} of popularMovies.items) {
 				images.push(`https://images.justwatch.com${poster.replace('{profile}', 's166')}`);
@@ -144,7 +131,6 @@ ipcMain.on('ready', async event => {
 		},
 	], () => {
 		event.sender.send('update-home-page', {
-			//trendingMovies: trendingMovies || [],
 			movies: popularMovies,
 			shows: popularTVShows,
 			images
@@ -247,21 +233,6 @@ ipcMain.on('load-show-details', async(event, {id, init}) => {
 
 		seriesDataStorage.get(imdbId).assign(oldData).write();
 	}
-
-	/*const episodeData = await imdb.episodes(imdbId);
-
-	console.log(episodeData.seasons);
-	console.log(seasonDetails.season_number);
-
-	const seasons = episodeData.seasons.filter(({season}) => season);
-	const season = seasons.find(({season}) => season === seasonDetails.season_number);
-
-	const episodes = await Promise.all(season.episodes.map(async episode => ({
-		number: episode.episode,
-		season: episode.season,
-		title: seasonDetails.episodes[episode.episode-1].title,
-		screenshot: (await imdb._apiRequest(episode.id)).resource.image
-	})));*/
 
 	const episodes = seasonDetails.episodes.map(({title, episode_number}) => ({
 		title,

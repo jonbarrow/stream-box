@@ -49,21 +49,6 @@ async function scrape(embedURL) {
 			}
 			
 			switch (playerType) {
-				/*case 'thevideo':
-					hostScrapers.Vev.scrape(embedUrl)
-						.then(vev => {
-							if (vev) {
-								for (const stream of vev) {
-									streams.push({
-										file: stream.file,
-										quality: stream.quality,
-									});
-								}
-							}
-
-							callback();
-						});
-					break;*/
 				case 'xstreamcdn':
 					hostScrapers.XStreamCDN.scrape(embedUrl)
 						.then(xstreamcdn => {

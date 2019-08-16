@@ -175,12 +175,11 @@ function omxplayerKeyHandle(event) {
 }
 
 function plyrKeyHandle(event) {
-
 	if (player.playing) {
 		event.preventDefault();
 	}
 	
-	const {key} = event;
+	const { key } = event;
 
 	if (!keybindsKeys.includes(key)) {
 		return;

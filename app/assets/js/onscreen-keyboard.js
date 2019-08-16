@@ -10,7 +10,6 @@ class VirtualKeyboard extends EventEmitter {
 		this.selected_input = null;
 		this.shifted = false;
 		this.focused = false;
-		this.focus_loop = null;
 		this.pos = 0;
 
 		this.keyboard_element.addEventListener('click', this.keyPress.bind(this), true);
@@ -21,21 +20,14 @@ class VirtualKeyboard extends EventEmitter {
 		this.selected_input = element;
 
 		this.focused = true;
-		this.focus_loop = setInterval(() => {
-			//console.log(this.selected_input);
-			//this.selected_input.focus();
-			//this.selected_input.setSelectionRange(this.pos, this.pos);
-		}, 500);
 
 		this.selected_input.classList.remove('navigation-selected');
 		this.keyboard_element.querySelector('[data-key]').classList.add('navigation-selected');
 	}
 
 	unfocus() {
-		clearInterval(this.focus_loop);
 
 		this.focused = false;
-		this.focus_loop = null;
 
 		this.keyboard_element.classList.add('hidden');
 		this.keyboard_element.querySelector('.navigation-selected').classList.remove('navigation-selected');

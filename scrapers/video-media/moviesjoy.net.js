@@ -8,7 +8,6 @@ const URL_BASE = 'https://moviesjoy.net';
 const URL_SEARCH = `${URL_BASE}/search`;
 const AJAX_BASE = `${URL_BASE}/ajax`;
 const AJAX_EPISODES = `${AJAX_BASE}/v4_movie_episodes`;
-//const AJAX_SOURCES = `${AJAX_BASE}/movie_sources`;
 const AJAX_EMBED = `${AJAX_BASE}/movie_embed`;
 
 class MoviesJoy extends EventEmitter {
@@ -54,38 +53,16 @@ class MoviesJoy extends EventEmitter {
 			}));
 		
 		async.each(episodeDataList, ({server, id, type}, callback) => {
-			let url;
-			
-			if (type === 'direct') {
-				//url = `${AJAX_SOURCES}/${id}-${server}`; // They have added recpatcha to direct urls :/
-			} else if (type === 'embed') {
-				url = `${AJAX_EMBED}/${id}-${server}`;
-			}
 
-			if (!url) {
+			if (type !== 'embed') {
 				return callback();
 			}
+			
+			const url = `${AJAX_EMBED}/${id}-${server}`;
 
 			got(url, {json: true})
 				.then(({body}) => {
-
-					if (type === 'direct') {
-						/* // They have added recpatcha to direct urls :/
-						if (body && body.playlist) {
-							for (const playlist of body.playlist) {
-								for (const source of playlist.sources) {
-									this.emit('stream', {
-										file_host: 'Google Video', // Seems to always be Google Video?
-										file: source.file,
-										quality: source.label,
-									});
-								}
-							}
-						}
-
-						callback();
-						*/
-					} else if (type === 'embed') {
+					if (type === 'embed') {
 						embedScraper(body.src)
 							.then(streams => {
 								if (streams) {

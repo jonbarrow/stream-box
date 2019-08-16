@@ -38,6 +38,7 @@
 		startStream
 		currentSelectedItem
 		virtualKeyboard
+		playerOpen
 */
 
 
@@ -52,13 +53,6 @@ const appPath = remote.app.getAppPath();
 const imageCache = require(path.resolve(appPath, './image_cache'));
 
 let currentSelectedMediaId;
-let currentSelectedMediaCast = [];
-let currentSelectedMediaCastPosition = -1;
-const castListObserver = new IntersectionObserver(castListObserverCallback, {
-	root: document.querySelector('#media-details-page .cast .body'),
-	rootMargin: '0px',
-	threshold: 1.0
-});
 
 async function bulkCacheImages(images) {
 	return new Promise(resolve => {
@@ -118,38 +112,6 @@ function searchMedia() {
 	ipcRenderer.send('search-media', {search_query: searchQuery, filters});
 
 	showLoader();
-}
-
-function castListObserverCallback(entries) {
-	if (entries[0].intersectionRatio === 1) {
-		loadCastListSection();
-	}
-}
-
-function updateCastListObserver() {
-	castListObserver.disconnect();
-	castListObserver.observe([...MOVIE_DETAILS_PAGE_CAST.querySelectorAll('img')].pop());
-}
-
-function loadCastListSection() {
-	const section = currentSelectedMediaCast.slice(currentSelectedMediaCastPosition+1, currentSelectedMediaCastPosition+10);
-
-	for (const castMember of section) {
-		if (castMember.profile) {
-			const img = document.createElement('img');
-			img.classList.add('cast-member');
-			img.src = imageCache(castMember.profile);
-	
-			MOVIE_DETAILS_PAGE_CAST.appendChild(img);
-		}
-	}
-
-	currentSelectedMediaCastPosition += 10;
-	if (currentSelectedMediaCastPosition < currentSelectedMediaCast.length) {
-		updateCastListObserver();
-	} else {
-		castListObserver.disconnect();
-	}
 }
 
 function scrapeStreams(id, season, episode) {
@@ -293,14 +255,7 @@ ipcRenderer.on('update-movie-details', async (event, data) => {
 			}
 
 			callback();
-		},
-		callback => {
-			//currentSelectedMediaCast = data.cast;
-			//currentSelectedMediaCastPosition = -1;
-
-			//loadCastListSection();
-			callback();
-		},
+		}
 	], () => {
 		loadMovieDetailsPage();
 		hideLoader();
@@ -457,14 +412,6 @@ ipcRenderer.on('search-results', async (event, data) => {
 
 	hideLoader();
 });
-
-/*
-ipcRenderer.once('stream', (event, stream) => {
-	hideLoader();
-	
-	startStream(stream);
-});
-*/
 
 ipcRenderer.on('stream', (event, stream) => {
 	if (!playerOpen()) {

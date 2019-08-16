@@ -16,7 +16,6 @@ function navigationKeyHandle(event) {
 	const { key } = event;
 
 	if (!keybindsKeys.includes(key)) {
-		console.log(key);
 		return;
 	}
 
