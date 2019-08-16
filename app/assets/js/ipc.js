@@ -454,13 +454,20 @@ ipcRenderer.on('search-results', async (event, data) => {
 	hideLoader();
 });
 
+/*
 ipcRenderer.once('stream', (event, stream) => {
 	hideLoader();
 	
 	startStream(stream);
 });
+*/
 
-ipcRenderer.on('stream', () => {
+ipcRenderer.on('stream', (event, stream) => {
+	if (!playerOpen()) {
+		hideLoader();
+	
+		startStream(stream);
+	}
 	// Populate a stream list to pick which stream should be played
 	// console.log(stream);
 });
