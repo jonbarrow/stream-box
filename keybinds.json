@@ -8,6 +8,7 @@
 	"back": "BrowserBack",
 	"toggleMediaPlay" : "MediaPlayPause",
 	"stopMedia" : "BrowserStop",
+	"stopMediaLinux" : "Cancel",
 	"volumeUp": "=",
 	"volumeDown": "-"
 }

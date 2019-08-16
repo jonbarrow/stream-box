@@ -2,7 +2,6 @@
 
 /* 
 	global
-		isPi
 		omxplayer
 		omxplayerKeyHandle
 		plyrKeyHandle
@@ -14,6 +13,7 @@
 */
 
 const log = require('electron-log');
+const isPi = require('detect-rpi');
 
 window.addEventListener('error', error => {
 	if (!error) {
@@ -219,7 +219,7 @@ document.addEventListener('keydown', event => {
 	} else if (playerOpen()) {
 		plyrKeyHandle(event);
 	} else {
-		navigationKeyHandle(event);	
+		navigationKeyHandle(event);
 	}
 });
 

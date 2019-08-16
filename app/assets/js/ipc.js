@@ -39,6 +39,8 @@
 		currentSelectedItem
 		virtualKeyboard
 		playerOpen
+		isPi
+		omxplayer
 */
 
 
@@ -416,11 +418,17 @@ ipcRenderer.on('search-results', async (event, data) => {
 });
 
 ipcRenderer.on('stream', (event, stream) => {
-	if (!playerOpen()) {
-		hideLoader();
-	
-		startStream(stream);
+	if (isPi()) {
+		if (!omxplayer.isPlaying()) {
+			startStream(stream);
+		}
+	} else {
+		if (!playerOpen()) {
+			startStream(stream);
+		}
 	}
+
+	hideLoader();
 	// Populate a stream list to pick which stream should be played
 	// console.log(stream);
 });

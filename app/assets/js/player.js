@@ -6,9 +6,9 @@
 		Hls
 		keybindsBinds
 		keybindsKeys
+		isPi
 */
 
-const isPi = require('detect-rpi');
 const omxplayer = require('../omxplayer');
 const video = document.querySelector('video');
 video.addEventListener('error', event => {
@@ -153,7 +153,7 @@ function omxplayerKeyHandle(event) {
 			break;
 		case 'q':
 		case 'goHome':
-		case 'stopMedia':
+		case 'stopMediaLinux':
 			omxplayer.quit();
 			break;
 		case 'p':
