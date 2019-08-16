@@ -63,6 +63,10 @@ const castListObserver = new IntersectionObserver(castListObserverCallback, {
 async function bulkCacheImages(images) {
 	return new Promise(resolve => {
 		async.each(images, (image, callback) => {
+			if (!image) {
+				return callback();
+			}
+
 			imageCache(image, () => {
 				callback(); // imageCache returns the image path in the callback. If this is passed directly to async.each then it is treated as an error
 			});
